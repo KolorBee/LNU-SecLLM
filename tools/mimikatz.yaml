@@ -1,0 +1,46 @@
+name: "mimikatz"
+command: "mimikatz.exe"
+enabled: false
+short_description: "Windows 凭证提取工具，用于提取内存中的密码和哈希"
+description: |
+  Mimikatz 是一个强大的 Windows 凭证提取工具，可以从内存中提取明文密码、哈希值、票据等敏感信息。
+
+  **主要功能：**
+  - 提取内存中的明文密码
+  - 提取 NTLM 哈希
+  - 提取 Kerberos 票据
+  - Pass-the-Hash 攻击
+  - Pass-the-Ticket 攻击
+  - 凭证转储
+
+  **使用场景：**
+  - 后渗透测试
+  - 横向移动
+  - 权限提升
+  - 安全研究
+
+  **注意事项：**
+  - 需要管理员权限运行
+  - 可能被杀毒软件检测
+  - 仅用于授权的安全测试
+  - 使用前需要进入 mimikatz 交互式命令行
+parameters:
+  - name: "command"
+    type: "string"
+    description: "Mimikatz 命令，例如 'privilege::debug sekurlsa::logonpasswords'"
+    required: true
+    format: "positional"
+  - name: "additional_args"
+    type: "string"
+    description: |
+      额外的mimikatz参数。用于传递未在参数列表中定义的mimikatz选项。
+
+      **示例值：**
+      - 根据工具特性添加常用参数示例
+
+      **注意事项：**
+      - 多个参数用空格分隔
+      - 确保参数格式正确，避免命令注入
+      - 此参数会直接追加到命令末尾
+    required: false
+    format: "positional"

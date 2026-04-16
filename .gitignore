@@ -1,0 +1,43 @@
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Runtime data
+data/
+tmp/
+logs/
+
+# Databases and local state
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment files
+.env
+.env.*
+
+# Build outputs
+dist/
+build/
+bin/
+
+# Go test / coverage
+coverage.out
+*.coverprofile
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
