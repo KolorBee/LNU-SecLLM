@@ -2,7 +2,7 @@
   <img src="web/static/logo.png" alt="CyberStrikeAI Logo" width="200">
 </div>
 
-# CyberStrikeAI
+# LNU-SecLLM
 
 
 [中文](README_CN.md) | [English](README.md)
