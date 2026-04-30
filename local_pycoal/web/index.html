@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pycoal Visual Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Pycoal Web Viewer</p>
+        <h1>Run the pipeline and inspect source and result side by side.</h1>
+        <p class="hero-copy">
+          Pick a local ENVI header path inside the workspace, choose a workflow, and let the backend
+          generate both the source preview and the processed output for direct comparison.
+        </p>
+      </div>
+      <div class="hero-card">
+        <span class="hero-tag">Workflow</span>
+        <ol>
+          <li>Select a demo preset or enter a path</li>
+          <li>Run mineral or mining workflow</li>
+          <li>Inspect generated previews</li>
+          <li>Review output artifact paths</li>
+        </ol>
+      </div>
+    </header>
+
+    <main class="workspace-grid">
+      <section class="panel input-panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">Input</p>
+            <h2>Original Image</h2>
+          </div>
+          <span class="panel-badge">Left Pane</span>
+        </div>
+
+        <div class="controls-card">
+          <div class="controls-header">
+            <h3>Run Controls</h3>
+            <div class="action-row compact">
+              <button id="load-mineral-demo" type="button" class="ghost-button">Use Mineral Demo</button>
+              <button id="load-mining-demo" type="button" class="ghost-button">Use Mining Demo</button>
+            </div>
+          </div>
+
+          <div class="meta-grid single-column">
+            <label class="field">
+              <span>Scene label</span>
+              <input id="scene-label" type="text" placeholder="e.g. AVIRIS scene 400-410 / 10-20">
+            </label>
+            <label class="field">
+              <span>Execution mode</span>
+              <select id="input-mode">
+                <option value="path" selected>Workspace paths</option>
+                <option value="upload">Upload ENVI files</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Workflow</span>
+              <select id="workflow-select">
+                <option value="mineral">Mineral classification</option>
+                <option value="mining">Mining classification</option>
+              </select>
+            </label>
+            <div id="path-fields" class="stack-group">
+              <label class="field">
+                <span>Input header path</span>
+                <input id="image-path" type="text" placeholder="pycoal/tests/images/... .hdr">
+              </label>
+            </div>
+            <div id="upload-fields" class="stack-group" hidden>
+              <div class="upload-grid">
+                <label class="field file-field">
+                  <span>Input .hdr</span>
+                  <input id="image-hdr-file" type="file" accept=".hdr">
+                </label>
+                <label class="field file-field">
+                  <span>Input .img</span>
+                  <input id="image-img-file" type="file" accept=".img,.sli">
+                </label>
+              </div>
+            </div>
+            <div id="mineral-fields" class="stack-group">
+              <label class="field">
+                <span>Spectral library path</span>
+                <input id="library-path" type="text" placeholder="pycoal/tests/s06av95a_envi.hdr">
+              </label>
+              <label class="field">
+                <span>Config path</span>
+                <input id="config-path" type="text" placeholder="pycoal/tests/test_config_files/config_test.ini">
+              </label>
+              <div id="mineral-upload-fields" class="upload-grid" hidden>
+                <label class="field file-field">
+                  <span>Library .hdr</span>
+                  <input id="library-hdr-file" type="file" accept=".hdr">
+                </label>
+                <label class="field file-field">
+                  <span>Library .img / .sli</span>
+                  <input id="library-img-file" type="file" accept=".img,.sli">
+                </label>
+                <label class="field file-field upload-span-2">
+                  <span>Config .ini</span>
+                  <input id="config-file" type="file" accept=".ini,.cfg,.txt">
+                </label>
+              </div>
+            </div>
+            <div id="mining-fields" class="stack-group" hidden>
+              <label class="field">
+                <span>Spectral library version</span>
+                <select id="spectral-version">
+                  <option value="6">6</option>
+                  <option value="7" selected>7</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button id="run-button" type="button" class="primary-button">Run Pycoal</button>
+            <p id="status-text" class="status-text">Idle. Load one of the demo presets or enter your own workspace path.</p>
+          </div>
+        </div>
+
+        <div class="viewer-frame">
+          <img id="source-preview" alt="Source preview" hidden>
+          <div id="source-empty" class="empty-state">
+            <strong>Source preview pending</strong>
+            <p>The backend will render a browser-viewable source preview automatically after a successful run.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel result-panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">Output</p>
+            <h2>Processed Result</h2>
+          </div>
+          <span class="panel-badge accent">Right Pane</span>
+        </div>
+
+        <div class="dropzone result-dropzone static-panel">
+          <span class="dropzone-title">Backend result preview</span>
+          <span class="dropzone-copy">The server writes ENVI outputs and PNG previews into the `web/runs` directory and loads the latest result here.</span>
+        </div>
+
+        <div class="viewer-frame result-frame">
+          <img id="result-preview" alt="Result preview" hidden>
+          <div id="result-empty" class="empty-state">
+            <strong>Result preview pending</strong>
+            <p>The generated mineral or mining classification preview will appear here once the API call succeeds.</p>
+          </div>
+        </div>
+
+        <div class="stats-card">
+          <div class="stats-header">
+            <h3>Run Snapshot</h3>
+            <button id="swap-button" type="button">Swap Views</button>
+          </div>
+          <dl class="stats-list">
+            <div>
+              <dt>Scene</dt>
+              <dd id="summary-scene">Not set</dd>
+            </div>
+            <div>
+              <dt>Pipeline</dt>
+              <dd id="summary-workflow">Mineral classification</dd>
+            </div>
+            <div>
+              <dt>Input file</dt>
+              <dd id="summary-source">No file loaded</dd>
+            </div>
+            <div>
+              <dt>Result file</dt>
+              <dd id="summary-result">No file loaded</dd>
+            </div>
+            <div>
+              <dt>Output path</dt>
+              <dd id="summary-output">Not generated yet</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
