@@ -5,13 +5,13 @@ short_description: "HTTP参数发现工具"
 description: |
   Arjun是一个HTTP参数发现工具，用于发现Web应用中的隐藏参数。
 
-  **主要功能：**
+  **主要功能**
   - HTTP参数发现
   - 多种HTTP方法支持
   - 多线程支持
   - 稳定模式
 
-  **使用场景：**
+  **使用场景**
   - 参数发现
   - Web应用安全测试
   - Bug bounty侦察

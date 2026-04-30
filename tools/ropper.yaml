@@ -5,13 +5,13 @@ short_description: "高级ROP/JOP gadget搜索工具"
 description: |
   Ropper是一个高级ROP/JOP gadget搜索工具，用于漏洞利用开发。
 
-  **主要功能：**
+  **主要功能**
   - ROP/JOP gadget搜索
   - Gadget质量评估
   - 多种架构支持
   - 利用链生成
 
-  **使用场景：**
+  **使用场景**
   - 漏洞利用开发
   - ROP链构建
   - 二进制分析

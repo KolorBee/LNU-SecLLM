@@ -5,12 +5,12 @@ short_description: "在libc中查找one-shot RCE gadget的工具"
 description: |
   One-gadget是一个用于在libc中查找one-shot RCE gadget的工具。
 
-  **主要功能：**
+  **主要功能**
   - One-shot gadget搜索
   - 约束级别检查
   - 多种libc支持
 
-  **使用场景：**
+  **使用场景**
   - CTF挑战
   - 漏洞利用开发
   - ROP链简化

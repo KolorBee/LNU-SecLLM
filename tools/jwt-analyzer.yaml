@@ -21,13 +21,12 @@ parameters:
     type: "string"
     description: "要分析的JWT令牌"
     required: true
-    flag: "-t"
-    format: "flag"
+    format: "positional"
   - name: "target_url"
     type: "string"
     description: "用于测试令牌操作的可选目标URL"
     required: false
-    flag: "-u"
+    flag: "-t"
     format: "flag"
   - name: "additional_args"
     type: "string"
