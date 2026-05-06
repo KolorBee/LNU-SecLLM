@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CyberStrikeAI</title>
-    <link rel="icon" type="image/png" href="/static/logo.png">
+    <link rel="icon" type="image/png" href="/static/logo.png?v=2">
     <link rel="shortcut icon" type="image/png" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css">
@@ -13,156 +13,132 @@
     <div id="login-overlay" class="login-overlay" style="display: none;">
         <div class="login-card">
             <div class="login-brand">
-                <h2 data-i18n="login.title">登录 CyberStrikeAI</h2>
-                <p class="login-subtitle" data-i18n="login.subtitle">请输入配置中的访问密码</p>
+                <img src="/static/logo.png?v=2" alt="Logo" style="width:48px;height:48px;border-radius:10px;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;">
+                <h2>LNU-SecLM 智御安全社区</h2>
+                <p class="login-subtitle">CyberStrikeAI · 智能安全平台</p>
             </div>
-            <form id="login-form" class="login-form">
+            <form class="login-form" id="login-form" onsubmit="submitLogin(event)">
                 <div class="form-group">
-                    <label for="login-password" data-i18n="login.passwordLabel">密码</label>
-                    <input type="password" id="login-password" placeholder="输入登录密码" required autocomplete="current-password" data-i18n="login.passwordPlaceholder" data-i18n-attr="placeholder" />
+                    <label for="login-password">登录密码</label>
+                    <input type="password" id="login-password" placeholder="请输入密码" autocomplete="current-password" required />
                 </div>
-                <div id="login-error" class="login-error" role="alert" style="display: none;"></div>
-                <button type="submit" class="btn-primary login-submit">
-                    <span data-i18n="login.submit">登录</span>
+                <div id="login-error" class="login-error" style="display: none;"></div>
+                <button type="submit" class="login-submit">
+                    登录
+                    <span class="login-submit-arrow">→</span>
                 </button>
             </form>
         </div>
     </div>
 
     <div class="container">
-        <header>
-            <div class="header-content">
-                <div class="logo header-logo-link" onclick="switchPage('dashboard')" role="button" data-i18n="header.backToDashboard" data-i18n-attr="title" data-i18n-skip-text="true" title="返回仪表盘">
-                    <img src="/static/logo.png" alt="CyberStrikeAI Logo" style="width: 32px; height: 32px; margin-right: 8px;">
-                    <h1>LNU-SecLLM</h1>
-                    <span class="version-badge" data-i18n="header.version" data-i18n-attr="title" data-i18n-skip-text="true" title="当前版本">{{.Version}}</span>
-                </div>
-                <div class="header-right">
-                    <div class="header-actions">
-                        <button class="openapi-doc-btn" onclick="window.open('/api-docs', '_blank')" data-i18n="header.apiDocs" data-i18n-attr="title" data-i18n-skip-text="true" title="API 文档">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span data-i18n="header.apiDocs">API 文档</span>
-                        </button>
-                                        <button class="openapi-doc-btn" onclick="window.open('https://github.com/Ed1s0nZ/CyberStrikeAI', '_blank')" data-i18n="header.github" data-i18n-attr="title" data-i18n-skip-text="true" title="GitHub">
-                                            <svg width="16" height="16" viewBox="0 0 98 96" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/>
-                                            </svg>
-                                            <span data-i18n="header.github">GitHub</span>
-                                        </button>
-                        <div class="lang-switcher">
-                            <button class="btn-secondary lang-switcher-btn" onclick="toggleLangDropdown()" data-i18n="header.language" data-i18n-attr="title" data-i18n-skip-text="true" title="界面语言">
-                                <span class="lang-switcher-icon">🌐</span>
-                                <span id="current-lang-label">中文</span>
-                            </button>
-                            <div id="lang-dropdown" class="lang-dropdown" style="display: none;">
-                                <div class="lang-option" data-lang="zh-CN" onclick="onLanguageSelect('zh-CN')">中文</div>
-                                <div class="lang-option" data-lang="en-US" onclick="onLanguageSelect('en-US')">English</div>
-                            </div>
+        <div class="main-layout">
+            <aside class="main-sidebar" id="main-sidebar">
+                <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="折叠侧边栏">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="main-sidebar-header">
+                    <div class="sidebar-brand-glow"></div>
+                    <div class="logo" onclick="switchPage('dashboard')" style="cursor:pointer;">
+                        <div class="sidebar-logo-wrap">
+                            <img src="/static/logo.png?v=2" alt="logo" style="width:28px;height:28px;border-radius:6px;flex-shrink:0;">
                         </div>
-                        <div class="user-menu-container">
-                            <button class="user-avatar-btn" onclick="toggleUserMenu()" data-i18n="header.userMenu" data-i18n-attr="title" data-i18n-skip-text="true" title="用户菜单">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                            <div id="user-menu-dropdown" class="user-menu-dropdown" style="display: none;">
-                                <div class="user-menu-item" onclick="logout()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span data-i18n="header.logout">退出登录</span>
-                                </div>
-                            </div>
+                        <div class="sidebar-brand-wrap">
+                            <span class="sidebar-brand-name">LNU-SecLM</span>
+                            <span class="sidebar-brand-sub">智御安全社区</span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </header>
-
-        <div class="main-layout">
-            <!-- 主侧边栏 -->
-            <aside class="main-sidebar" id="main-sidebar">
-                <div class="sidebar-collapse-btn" onclick="toggleSidebar()" data-i18n="header.toggleSidebar" data-i18n-attr="title" data-i18n-skip-text="true" title="折叠/展开侧边栏">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
                 <nav class="main-sidebar-nav">
+                    <div class="nav-group-label" data-section="dashboard"><span>数据看板</span></div>
                     <div class="nav-item" data-page="dashboard">
                         <div class="nav-item-content" data-title="仪表盘" onclick="switchPage('dashboard')" data-i18n="nav.dashboard" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="3" width="7" height="9"></rect>
-                                <rect x="14" y="3" width="7" height="5"></rect>
-                                <rect x="14" y="12" width="7" height="9"></rect>
-                                <rect x="3" y="16" width="7" height="5"></rect>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-blue">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                            </span>
                             <span data-i18n="nav.dashboard">仪表盘</span>
                         </div>
                     </div>
+                    <div class="nav-group-label" data-section="workbench"><span>安全工作台</span></div>
                     <div class="nav-item" data-page="chat">
-                        <div class="nav-item-content" data-title="对话" onclick="switchPage('chat')" data-i18n="nav.chat" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            <span data-i18n="nav.chat">对话</span>
+                        <div class="nav-item-content" data-title="AI对话" onclick="switchPage('chat')" data-i18n="nav.chat" data-i18n-attr="data-title" data-i18n-skip-text="true">
+                            <span class="nav-icon-wrap nav-icon-orange">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            </span>
+                            <span data-i18n="nav.chat">AI对话</span>
                         </div>
                     </div>
                     <div class="nav-item" data-page="info-collect">
                         <div class="nav-item-content" data-title="信息收集" onclick="switchPage('info-collect')" data-i18n="nav.infoCollect" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-orange">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                            </span>
                             <span data-i18n="nav.infoCollect">信息收集</span>
                         </div>
                     </div>
                     <div class="nav-item" data-page="tasks">
                         <div class="nav-item-content" data-title="任务管理" onclick="switchPage('tasks')" data-i18n="nav.tasks" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9 11l3 3L22 4"></path>
-                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-orange">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                            </span>
                             <span data-i18n="nav.tasks">任务管理</span>
                         </div>
                     </div>
                     <div class="nav-item" data-page="vulnerabilities">
                         <div class="nav-item-content" data-title="漏洞管理" onclick="switchPage('vulnerabilities')" data-i18n="nav.vulnerabilities" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                <path d="M9 12l2 2 4-4"></path>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-red">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+                            </span>
                             <span data-i18n="nav.vulnerabilities">漏洞管理</span>
                         </div>
                     </div>
                     <div class="nav-item" data-page="webshell">
                         <div class="nav-item-content" data-title="WebShell管理" onclick="switchPage('webshell')" data-i18n="nav.webshell" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="4 17 10 11 4 5"></polyline>
-                                <line x1="12" y1="19" x2="20" y2="19"></line>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-red">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                            </span>
                             <span data-i18n="nav.webshell">WebShell管理</span>
                         </div>
                     </div>
                     <div class="nav-item" data-page="chat-files">
                         <div class="nav-item-content" data-title="文件管理" onclick="switchPage('chat-files')" data-i18n="nav.chatFiles" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-orange">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                            </span>
                             <span data-i18n="nav.chatFiles">文件管理</span>
                         </div>
                     </div>
+                    <div class="nav-group-label" data-section="extensions"><span>扩展模块</span></div>
+                    <div class="nav-item nav-item-has-submenu" data-page="extensions">
+                        <div class="nav-item-content" data-title="扩展模块" onclick="toggleSubmenu('extensions')" data-i18n="nav.extensions" data-i18n-attr="data-title" data-i18n-skip-text="true">
+                            <span class="nav-icon-wrap nav-icon-teal">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                            </span>
+                            <span data-i18n="nav.extensions">扩展模块</span>
+                            <svg class="submenu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="nav-submenu">
+                            <div class="nav-submenu-item" data-page="extensions-market" onclick="switchPage('extensions-market')">
+                                <span data-i18n="nav.extensionsMarket">扩展市场</span>
+                            </div>
+                            <div class="nav-submenu-item" data-page="plugin-management" onclick="switchPage('plugin-management')">
+                                <span data-i18n="nav.pluginManagement">插件管理</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nav-group-label" data-section="engine"><span>智能引擎</span></div>
                     <div class="nav-item nav-item-has-submenu" data-page="mcp">
                         <div class="nav-item-content" data-title="MCP" onclick="toggleSubmenu('mcp')" data-i18n="nav.mcp" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-purple">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                            </span>
                             <span data-i18n="nav.mcp">MCP</span>
                             <svg class="submenu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -179,10 +155,9 @@
                     </div>
                     <div class="nav-item nav-item-has-submenu" data-page="knowledge">
                         <div class="nav-item-content" data-title="知识" onclick="toggleSubmenu('knowledge')" data-i18n="nav.knowledge" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-purple">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                            </span>
                             <span data-i18n="nav.knowledge">知识</span>
                             <svg class="submenu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -199,13 +174,9 @@
                     </div>
                     <div class="nav-item nav-item-has-submenu" data-page="skills">
                         <div class="nav-item-content" data-title="Skills" onclick="toggleSubmenu('skills')" data-i18n="nav.skills" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line>
-                                <line x1="16" y1="17" x2="8" y2="17"></line>
-                                <polyline points="10 9 9 9 8 9"></polyline>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-purple">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                            </span>
                             <span data-i18n="nav.skills">Skills</span>
                             <svg class="submenu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -222,11 +193,9 @@
                     </div>
                     <div class="nav-item nav-item-has-submenu" data-page="agents">
                         <div class="nav-item-content" data-title="Agents" onclick="toggleSubmenu('agents')" data-i18n="nav.agents" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                                <polyline points="2 17 12 22 22 17"></polyline>
-                                <polyline points="2 12 12 17 22 12"></polyline>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-teal">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                            </span>
                             <span data-i18n="nav.agents">Agents</span>
                             <svg class="submenu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -240,12 +209,9 @@
                     </div>
                     <div class="nav-item nav-item-has-submenu" data-page="roles">
                         <div class="nav-item-content" data-title="角色" onclick="toggleSubmenu('roles')" data-i18n="nav.roles" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-teal">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </span>
                             <span data-i18n="nav.roles">角色</span>
                             <svg class="submenu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -257,16 +223,26 @@
                             </div>
                         </div>
                     </div>
+                    <div class="nav-group-label" data-section="system"><span>系统管理</span></div>
                     <div class="nav-item" data-page="settings">
                         <div class="nav-item-content" data-title="系统设置" onclick="switchPage('settings')" data-i18n="nav.settings" data-i18n-attr="data-title" data-i18n-skip-text="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                            </svg>
+                            <span class="nav-icon-wrap nav-icon-gray">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                            </span>
                             <span data-i18n="nav.settings">系统设置</span>
                         </div>
                     </div>
                 </nav>
+                <div class="sidebar-user-footer" id="sidebar-user-footer">
+                    <div class="sidebar-user-avatar-circle">SA</div>
+                    <div class="sidebar-user-info-wrap">
+                        <span class="sidebar-user-name-text">Security Admin</span>
+                        <span class="sidebar-user-role-text">管理员</span>
+                    </div>
+                    <button class="sidebar-logout-icon-btn" onclick="logout()" title="退出登录">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </button>
+                </div>
             </aside>
 
             <!-- 内容区域 -->
@@ -274,165 +250,218 @@
                 <!-- 仪表盘页面 -->
                 <div id="page-dashboard" class="page active">
                     <div class="dashboard-page">
-                        <div class="page-header">
-                            <h2 data-i18n="dashboard.title">仪表盘</h2>
-                            <div class="page-header-actions">
-                                <button class="btn-secondary" onclick="refreshDashboard()" data-i18n="dashboard.refreshData" data-i18n-attr="title" title="刷新数据"><span data-i18n="common.refresh">刷新</span></button>
-                            </div>
-                        </div>
                         <div class="dashboard-content">
-                            <!-- 第一行：核心 KPI（仪表盘最佳实践：关键指标置顶） -->
+                            <!-- 欢迎横幅 -->
+                            <div class="dashboard-welcome-banner">
+                                <div class="welcome-banner-inner">
+                                    <div class="welcome-banner-text">
+                                        <h2>欢迎回来，Security Admin 👋</h2>
+                                        <p>LNU-SecLM 智御安全社区 — AI 驱动安全，代码守护未来</p>
+                                    </div>
+                                    <button class="welcome-start-btn" onclick="switchPage('chat')">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                        开始对话
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 核心 KPI 卡片 -->
                             <div class="dashboard-kpi-row" id="dashboard-cards">
-                                <div class="dashboard-kpi-card" role="button" tabindex="0" onclick="switchPage('tasks')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); switchPage('tasks'); }" data-i18n="dashboard.clickToViewTasks" data-i18n-attr="title" title="点击查看任务管理"> <div class="dashboard-kpi-value" id="dashboard-running-tasks">-</div><div class="dashboard-kpi-label" data-i18n="dashboard.runningTasks">运行中任务</div></div>
-                                <div class="dashboard-kpi-card" role="button" tabindex="0" onclick="switchPage('vulnerabilities')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); switchPage('vulnerabilities'); }" data-i18n="dashboard.clickToViewVuln" data-i18n-attr="title" title="点击查看漏洞管理"><div class="dashboard-kpi-value" id="dashboard-vuln-total">-</div><div class="dashboard-kpi-label" data-i18n="dashboard.vulnTotal">漏洞总数</div></div>
-                                <div class="dashboard-kpi-card" role="button" tabindex="0" onclick="switchPage('mcp-monitor')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); switchPage('mcp-monitor'); }" data-i18n="dashboard.clickToViewMCP" data-i18n-attr="title" title="点击查看 MCP 监控"><div class="dashboard-kpi-value" id="dashboard-kpi-tools-calls">-</div><div class="dashboard-kpi-label" data-i18n="dashboard.toolCalls">工具调用次数</div></div>
-                                <div class="dashboard-kpi-card" role="button" tabindex="0" onclick="switchPage('mcp-monitor')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); switchPage('mcp-monitor'); }" data-i18n="dashboard.clickToViewMCP" data-i18n-attr="title" title="点击查看 MCP 监控"><div class="dashboard-kpi-value" id="dashboard-kpi-success-rate">-</div><div class="dashboard-kpi-label" data-i18n="dashboard.successRate">工具执行成功率</div></div>
-                            </div>
-                            <!-- 两列主内容区 -->
-                            <div class="dashboard-grid">
-                                <div class="dashboard-main">
-                                    <section class="dashboard-section dashboard-section-chart">
-                                        <h3 class="dashboard-section-title" data-i18n="dashboard.severityDistribution">漏洞严重程度分布</h3>
-                                        <div class="dashboard-chart-wrap">
-                                            <div class="dashboard-stacked-bar" id="dashboard-stacked-bar">
-                                                <span class="dashboard-bar-seg seg-critical" id="dashboard-bar-critical" style="width: 0%"></span>
-                                                <span class="dashboard-bar-seg seg-high" id="dashboard-bar-high" style="width: 0%"></span>
-                                                <span class="dashboard-bar-seg seg-medium" id="dashboard-bar-medium" style="width: 0%"></span>
-                                                <span class="dashboard-bar-seg seg-low" id="dashboard-bar-low" style="width: 0%"></span>
-                                                <span class="dashboard-bar-seg seg-info" id="dashboard-bar-info" style="width: 0%"></span>
-                                            </div>
-                                            <div class="dashboard-legend" id="dashboard-vuln-bars">
-                                                <div class="dashboard-legend-item"><span class="dashboard-legend-dot critical"></span><span class="dashboard-legend-label" data-i18n="dashboard.severityCritical">严重</span><span class="dashboard-legend-value" id="dashboard-severity-critical">0</span></div>
-                                                <div class="dashboard-legend-item"><span class="dashboard-legend-dot high"></span><span class="dashboard-legend-label" data-i18n="dashboard.severityHigh">高危</span><span class="dashboard-legend-value" id="dashboard-severity-high">0</span></div>
-                                                <div class="dashboard-legend-item"><span class="dashboard-legend-dot medium"></span><span class="dashboard-legend-label" data-i18n="dashboard.severityMedium">中危</span><span class="dashboard-legend-value" id="dashboard-severity-medium">0</span></div>
-                                                <div class="dashboard-legend-item"><span class="dashboard-legend-dot low"></span><span class="dashboard-legend-label" data-i18n="dashboard.severityLow">低危</span><span class="dashboard-legend-value" id="dashboard-severity-low">0</span></div>
-                                                <div class="dashboard-legend-item"><span class="dashboard-legend-dot info"></span><span class="dashboard-legend-label" data-i18n="dashboard.severityInfo">信息</span><span class="dashboard-legend-value" id="dashboard-severity-info">0</span></div>
-                                            </div>
-                                        </div>
-                                    </section>
-                                    <section class="dashboard-section dashboard-section-overview">
-                                        <h3 class="dashboard-section-title" data-i18n="dashboard.runOverview">运行概览</h3>
-                                        <div class="dashboard-overview-list">
-                                            <div class="dashboard-overview-item dashboard-overview-item-batch" role="button" tabindex="0" onclick="switchPage('tasks')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); switchPage('tasks'); }">
-                                                <span class="dashboard-overview-icon dashboard-overview-icon-batch" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-                                                <div class="dashboard-overview-content">
-                                                    <div class="dashboard-overview-header">
-                                                        <span class="dashboard-overview-label" data-i18n="dashboard.batchQueues">批量任务队列</span>
-                                                        <span class="dashboard-overview-total" id="dashboard-batch-total">-</span>
-                                                    </div>
-                                                    <div class="dashboard-overview-stats">
-                                                        <span class="dashboard-overview-stat dashboard-overview-stat-pending">
-                                                            <span class="dashboard-overview-stat-badge badge-pending"></span>
-                                                            <span class="dashboard-overview-stat-value" id="dashboard-batch-pending">-</span>
-                                                            <span class="dashboard-overview-stat-label" data-i18n="dashboard.pending">待执行</span>
-                                                        </span>
-                                                        <span class="dashboard-overview-stat dashboard-overview-stat-running">
-                                                            <span class="dashboard-overview-stat-badge badge-running"></span>
-                                                            <span class="dashboard-overview-stat-value" id="dashboard-batch-running">-</span>
-                                                            <span class="dashboard-overview-stat-label" data-i18n="dashboard.executing">执行中</span>
-                                                        </span>
-                                                        <span class="dashboard-overview-stat dashboard-overview-stat-done">
-                                                            <span class="dashboard-overview-stat-badge badge-done"></span>
-                                                            <span class="dashboard-overview-stat-value" id="dashboard-batch-done">-</span>
-                                                            <span class="dashboard-overview-stat-label" data-i18n="dashboard.completed">已完成</span>
-                                                        </span>
-                                                    </div>
-                                                    <div class="dashboard-overview-progress">
-                                                        <div class="dashboard-overview-progress-bar">
-                                                            <div class="dashboard-overview-progress-segment dashboard-overview-progress-pending" id="dashboard-batch-progress-pending" style="width: 0%"></div>
-                                                            <div class="dashboard-overview-progress-segment dashboard-overview-progress-running" id="dashboard-batch-progress-running" style="width: 0%"></div>
-                                                            <div class="dashboard-overview-progress-segment dashboard-overview-progress-done" id="dashboard-batch-progress-done" style="width: 0%"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="dashboard-overview-item dashboard-overview-item-tools" role="button" tabindex="0" onclick="switchPage('mcp-monitor')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); switchPage('mcp-monitor'); }">
-                                                <span class="dashboard-overview-icon dashboard-overview-icon-tools" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-                                                <div class="dashboard-overview-content">
-                                                    <div class="dashboard-overview-header">
-                                                        <span class="dashboard-overview-label" data-i18n="dashboard.toolInvocations">工具调用</span>
-                                                        <span class="dashboard-overview-success-rate" id="dashboard-tools-success-rate">-</span>
-                                                    </div>
-                                                    <div class="dashboard-overview-value-group">
-                                                        <span class="dashboard-overview-value-large" id="dashboard-tools-calls">-</span>
-                                                        <span class="dashboard-overview-value-unit" data-i18n="dashboard.callsUnit">次调用</span>
-                                                        <span class="dashboard-overview-value-separator">·</span>
-                                                        <span class="dashboard-overview-value-normal" id="dashboard-tools-count">-</span>
-                                                        <span class="dashboard-overview-value-unit" data-i18n="dashboard.toolsUnit">个工具</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="dashboard-overview-item dashboard-overview-item-knowledge" role="button" tabindex="0" onclick="switchPage('knowledge-management')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); switchPage('knowledge-management'); }">
-                                                <span class="dashboard-overview-icon dashboard-overview-icon-knowledge" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>
-                                                <div class="dashboard-overview-content">
-                                                    <div class="dashboard-overview-header">
-                                                        <span class="dashboard-overview-label" data-i18n="dashboard.knowledgeLabel">知识</span>
-                                                        <span class="dashboard-overview-status" id="dashboard-knowledge-status">-</span>
-                                                    </div>
-                                                    <div class="dashboard-overview-value-group">
-                                                        <span class="dashboard-overview-value-large" id="dashboard-knowledge-items">-</span>
-                                                        <span class="dashboard-overview-value-unit" data-i18n="dashboard.knowledgeItems">项知识</span>
-                                                        <span class="dashboard-overview-value-separator">·</span>
-                                                        <span class="dashboard-overview-value-normal" id="dashboard-knowledge-categories">-</span>
-                                                        <span class="dashboard-overview-value-unit" data-i18n="dashboard.categoriesUnit">个分类</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="dashboard-overview-item dashboard-overview-item-skills" role="button" tabindex="0" onclick="switchPage('skills-monitor')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); switchPage('skills-monitor'); }">
-                                                <span class="dashboard-overview-icon dashboard-overview-icon-skills" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-                                                <div class="dashboard-overview-content">
-                                                    <div class="dashboard-overview-header">
-                                                        <span class="dashboard-overview-label" data-i18n="dashboard.skillsLabel">Skills</span>
-                                                        <span class="dashboard-overview-status" id="dashboard-skills-status">-</span>
-                                                    </div>
-                                                    <div class="dashboard-overview-value-group">
-                                                        <span class="dashboard-overview-value-large" id="dashboard-skills-calls">-</span>
-                                                        <span class="dashboard-overview-value-unit" data-i18n="dashboard.callsUnit">次调用</span>
-                                                        <span class="dashboard-overview-value-separator">·</span>
-                                                        <span class="dashboard-overview-value-normal" id="dashboard-skills-count">-</span>
-                                                        <span class="dashboard-overview-value-unit" data-i18n="dashboard.skillUnit">个 Skill</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </section>
-                                    <section class="dashboard-section dashboard-section-quick dashboard-quick-inline">
-                                        <h3 class="dashboard-section-title" data-i18n="dashboard.quickLinks">快捷入口</h3>
-                                        <div class="dashboard-quick-links dashboard-quick-links-row">
-                                            <a class="dashboard-quick-link" onclick="switchPage('chat')"><span class="dashboard-quick-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span><span data-i18n="nav.chat">对话</span></a>
-                                            <a class="dashboard-quick-link" onclick="switchPage('tasks')"><span class="dashboard-quick-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></span><span data-i18n="nav.tasks">任务管理</span></a>
-                                            <a class="dashboard-quick-link" onclick="switchPage('vulnerabilities')"><span class="dashboard-quick-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span><span data-i18n="nav.vulnerabilities">漏洞管理</span></a>
-                                            <a class="dashboard-quick-link" onclick="switchPage('mcp-management')"><span class="dashboard-quick-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></span><span data-i18n="nav.mcpManagement">MCP 管理</span></a>
-                                            <a class="dashboard-quick-link" onclick="switchPage('knowledge-management')"><span class="dashboard-quick-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span><span data-i18n="nav.knowledgeManagement">知识管理</span></a>
-                                            <a class="dashboard-quick-link" onclick="switchPage('skills-management')"><span class="dashboard-quick-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></span><span data-i18n="nav.skillsManagement">Skills 管理</span></a>
-                                            <a class="dashboard-quick-link" onclick="switchPage('roles-management')"><span class="dashboard-quick-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span data-i18n="nav.rolesManagement">角色管理</span></a>
-                                        </div>
-                                    </section>
-                                </div>
-                                <div class="dashboard-side">
-                                    <section class="dashboard-section dashboard-section-tools">
-                                        <h3 class="dashboard-section-title" data-i18n="dashboard.toolsExecCount">工具执行次数</h3>
-                                        <div class="dashboard-tools-chart-wrap">
-                                            <div class="dashboard-tools-chart-placeholder" id="dashboard-tools-pie-placeholder" data-i18n="common.noData">暂无数据</div>
-                                            <div class="dashboard-tools-bar-chart" id="dashboard-tools-bar-chart"></div>
-                                        </div>
-                                    </section>
-                                </div>
-                            </div>
-                            <div class="dashboard-cta-block">
-                                <div class="dashboard-cta-content">
-                                    <div class="dashboard-cta-icon" aria-hidden="true">
-                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                <div class="dashboard-kpi-card" role="button" tabindex="0" onclick="switchPage('tasks')" title="点击查看任务管理">
+                                    <div class="kpi-card-icon kpi-icon-tasks">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                                     </div>
-                                    <div class="dashboard-cta-copy">
-                                        <p class="dashboard-cta-text" data-i18n="dashboard.ctaTitle">开始你的安全之旅</p>
-                                        <p class="dashboard-cta-sub" data-i18n="dashboard.ctaSub">在对话中描述目标，AI 将协助执行扫描与漏洞分析</p>
+                                    <div class="kpi-card-body">
+                                        <div class="dashboard-kpi-value" id="dashboard-running-tasks">-</div>
+                                        <div class="dashboard-kpi-label">运行中任务</div>
                                     </div>
                                 </div>
-                                <button class="dashboard-cta-btn" onclick="switchPage('chat')">
-                                    <span data-i18n="dashboard.goToChat">前往对话</span>
-                                    <span class="dashboard-cta-btn-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-                                </button>
+                                <div class="dashboard-kpi-card" role="button" tabindex="0" onclick="switchPage('vulnerabilities')" title="点击查看漏洞管理">
+                                    <div class="kpi-card-icon kpi-icon-vuln">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                                    </div>
+                                    <div class="kpi-card-body">
+                                        <div class="dashboard-kpi-value" id="dashboard-vuln-total">-</div>
+                                        <div class="dashboard-kpi-label">发现漏洞</div>
+                                    </div>
+                                </div>
+                                <div class="dashboard-kpi-card" role="button" tabindex="0" onclick="switchPage('mcp-monitor')" title="点击查看 MCP 监控">
+                                    <div class="kpi-card-icon kpi-icon-tools">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                                    </div>
+                                    <div class="kpi-card-body">
+                                        <div class="dashboard-kpi-value" id="dashboard-kpi-tools-calls">-</div>
+                                        <div class="dashboard-kpi-label">工具调用次数</div>
+                                    </div>
+                                </div>
+                                <div class="dashboard-kpi-card" role="button" tabindex="0" onclick="switchPage('knowledge-management')" title="点击查看知识管理">
+                                    <div class="kpi-card-icon kpi-icon-knowledge">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                    </div>
+                                    <div class="kpi-card-body">
+                                        <div class="dashboard-kpi-value" id="dashboard-kpi-success-rate">-</div>
+                                        <div class="dashboard-kpi-label">工具执行成功率</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 双列面板第一行：漏洞概况 + 运行状态 -->
+                            <div class="dashboard-grid-2col">
+                                <!-- 漏洞概况面板 -->
+                                <div class="dashboard-panel">
+                                    <div class="panel-header-row">
+                                        <span class="panel-header-icon">🛡</span>
+                                        <h3 class="panel-title" data-i18n="dashboard.severityDistribution">漏洞严重程度分布</h3>
+                                        <a class="panel-link" onclick="switchPage('vulnerabilities')">查看全部 →</a>
+                                    </div>
+                                    <div class="dashboard-chart-wrap">
+                                        <div class="dashboard-stacked-bar" id="dashboard-stacked-bar">
+                                            <span class="dashboard-bar-seg seg-critical" id="dashboard-bar-critical" style="width: 0%"></span>
+                                            <span class="dashboard-bar-seg seg-high" id="dashboard-bar-high" style="width: 0%"></span>
+                                            <span class="dashboard-bar-seg seg-medium" id="dashboard-bar-medium" style="width: 0%"></span>
+                                            <span class="dashboard-bar-seg seg-low" id="dashboard-bar-low" style="width: 0%"></span>
+                                            <span class="dashboard-bar-seg seg-info" id="dashboard-bar-info" style="width: 0%"></span>
+                                        </div>
+                                        <div class="dashboard-legend" id="dashboard-vuln-bars">
+                                            <div class="dashboard-legend-item"><span class="dashboard-legend-dot critical"></span><span class="dashboard-legend-label">严重</span><span class="dashboard-legend-value" id="dashboard-severity-critical">0</span></div>
+                                            <div class="dashboard-legend-item"><span class="dashboard-legend-dot high"></span><span class="dashboard-legend-label">高危</span><span class="dashboard-legend-value" id="dashboard-severity-high">0</span></div>
+                                            <div class="dashboard-legend-item"><span class="dashboard-legend-dot medium"></span><span class="dashboard-legend-label">中危</span><span class="dashboard-legend-value" id="dashboard-severity-medium">0</span></div>
+                                            <div class="dashboard-legend-item"><span class="dashboard-legend-dot low"></span><span class="dashboard-legend-label">低危</span><span class="dashboard-legend-value" id="dashboard-severity-low">0</span></div>
+                                            <div class="dashboard-legend-item"><span class="dashboard-legend-dot info"></span><span class="dashboard-legend-label">信息</span><span class="dashboard-legend-value" id="dashboard-severity-info">0</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 运行状态面板 -->
+                                <div class="dashboard-panel">
+                                    <div class="panel-header-row">
+                                        <span class="panel-header-icon">⚡</span>
+                                        <h3 class="panel-title" data-i18n="dashboard.runOverview">运行概览</h3>
+                                        <a class="panel-link" onclick="switchPage('tasks')">任务管理 →</a>
+                                    </div>
+                                    <div class="dashboard-overview-list">
+                                        <div class="dashboard-overview-item dashboard-overview-item-batch" role="button" tabindex="0" onclick="switchPage('tasks')">
+                                            <span class="dashboard-overview-icon dashboard-overview-icon-batch" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+                                            <div class="dashboard-overview-content">
+                                                <div class="dashboard-overview-header">
+                                                    <span class="dashboard-overview-label">批量任务队列</span>
+                                                    <span class="dashboard-overview-total" id="dashboard-batch-total">-</span>
+                                                </div>
+                                                <div class="dashboard-overview-stats">
+                                                    <span class="dashboard-overview-stat dashboard-overview-stat-pending"><span class="dashboard-overview-stat-badge badge-pending"></span><span class="dashboard-overview-stat-value" id="dashboard-batch-pending">-</span><span class="dashboard-overview-stat-label">待执行</span></span>
+                                                    <span class="dashboard-overview-stat dashboard-overview-stat-running"><span class="dashboard-overview-stat-badge badge-running"></span><span class="dashboard-overview-stat-value" id="dashboard-batch-running">-</span><span class="dashboard-overview-stat-label">执行中</span></span>
+                                                    <span class="dashboard-overview-stat dashboard-overview-stat-done"><span class="dashboard-overview-stat-badge badge-done"></span><span class="dashboard-overview-stat-value" id="dashboard-batch-done">-</span><span class="dashboard-overview-stat-label">已完成</span></span>
+                                                </div>
+                                                <div class="dashboard-overview-progress"><div class="dashboard-overview-progress-bar"><div class="dashboard-overview-progress-segment dashboard-overview-progress-pending" id="dashboard-batch-progress-pending" style="width: 0%"></div><div class="dashboard-overview-progress-segment dashboard-overview-progress-running" id="dashboard-batch-progress-running" style="width: 0%"></div><div class="dashboard-overview-progress-segment dashboard-overview-progress-done" id="dashboard-batch-progress-done" style="width: 0%"></div></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="dashboard-overview-item dashboard-overview-item-tools" role="button" tabindex="0" onclick="switchPage('mcp-monitor')">
+                                            <span class="dashboard-overview-icon dashboard-overview-icon-tools" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+                                            <div class="dashboard-overview-content">
+                                                <div class="dashboard-overview-header">
+                                                    <span class="dashboard-overview-label">工具调用</span>
+                                                    <span class="dashboard-overview-success-rate" id="dashboard-tools-success-rate">-</span>
+                                                </div>
+                                                <div class="dashboard-overview-value-group">
+                                                    <span class="dashboard-overview-value-large" id="dashboard-tools-calls">-</span>
+                                                    <span class="dashboard-overview-value-unit">次调用</span>
+                                                    <span class="dashboard-overview-value-separator">·</span>
+                                                    <span class="dashboard-overview-value-normal" id="dashboard-tools-count">-</span>
+                                                    <span class="dashboard-overview-value-unit">个工具</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="dashboard-overview-item dashboard-overview-item-knowledge" role="button" tabindex="0" onclick="switchPage('knowledge-management')">
+                                            <span class="dashboard-overview-icon dashboard-overview-icon-knowledge" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+                                            <div class="dashboard-overview-content">
+                                                <div class="dashboard-overview-header">
+                                                    <span class="dashboard-overview-label">知识库</span>
+                                                    <span class="dashboard-overview-status" id="dashboard-knowledge-status">-</span>
+                                                </div>
+                                                <div class="dashboard-overview-value-group">
+                                                    <span class="dashboard-overview-value-large" id="dashboard-knowledge-items">-</span>
+                                                    <span class="dashboard-overview-value-unit">项知识</span>
+                                                    <span class="dashboard-overview-value-separator">·</span>
+                                                    <span class="dashboard-overview-value-normal" id="dashboard-knowledge-categories">-</span>
+                                                    <span class="dashboard-overview-value-unit">个分类</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="dashboard-overview-item dashboard-overview-item-skills" role="button" tabindex="0" onclick="switchPage('skills-monitor')">
+                                            <span class="dashboard-overview-icon dashboard-overview-icon-skills" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+                                            <div class="dashboard-overview-content">
+                                                <div class="dashboard-overview-header">
+                                                    <span class="dashboard-overview-label">Skills</span>
+                                                    <span class="dashboard-overview-status" id="dashboard-skills-status">-</span>
+                                                </div>
+                                                <div class="dashboard-overview-value-group">
+                                                    <span class="dashboard-overview-value-large" id="dashboard-skills-calls">-</span>
+                                                    <span class="dashboard-overview-value-unit">次调用</span>
+                                                    <span class="dashboard-overview-value-separator">·</span>
+                                                    <span class="dashboard-overview-value-normal" id="dashboard-skills-count">-</span>
+                                                    <span class="dashboard-overview-value-unit">个 Skill</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 双列面板第二行：热门工具 + 快速操作 -->
+                            <div class="dashboard-grid-2col">
+                                <!-- 热门工具面板 -->
+                                <div class="dashboard-panel">
+                                    <div class="panel-header-row">
+                                        <span class="panel-header-icon">🔥</span>
+                                        <h3 class="panel-title">热门工具</h3>
+                                        <a class="panel-link" onclick="switchPage('mcp-management')">工具管理 →</a>
+                                    </div>
+                                    <div class="dashboard-tools-chart-wrap">
+                                        <div class="dashboard-tools-chart-placeholder" id="dashboard-tools-pie-placeholder">暂无数据</div>
+                                        <div class="dashboard-tools-bar-chart" id="dashboard-tools-bar-chart"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 快速操作面板 -->
+                                <div class="dashboard-panel">
+                                    <div class="panel-header-row">
+                                        <span class="panel-header-icon">🚀</span>
+                                        <h3 class="panel-title">快速操作</h3>
+                                    </div>
+                                    <div class="dashboard-quick-grid">
+                                        <a class="dashboard-quick-card" onclick="switchPage('chat')">
+                                            <span class="quick-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+                                            <span class="quick-card-label">AI 对话</span>
+                                        </a>
+                                        <a class="dashboard-quick-card" onclick="switchPage('tasks')">
+                                            <span class="quick-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+                                            <span class="quick-card-label">任务管理</span>
+                                        </a>
+                                        <a class="dashboard-quick-card" onclick="switchPage('vulnerabilities')">
+                                            <span class="quick-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                                            <span class="quick-card-label">漏洞管理</span>
+                                        </a>
+                                        <a class="dashboard-quick-card" onclick="switchPage('mcp-management')">
+                                            <span class="quick-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+                                            <span class="quick-card-label">MCP 管理</span>
+                                        </a>
+                                        <a class="dashboard-quick-card" onclick="switchPage('knowledge-management')">
+                                            <span class="quick-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+                                            <span class="quick-card-label">知识管理</span>
+                                        </a>
+                                        <a class="dashboard-quick-card" onclick="switchPage('skills-management')">
+                                            <span class="quick-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+                                            <span class="quick-card-label">Skills 管理</span>
+                                        </a>
+                                        <a class="dashboard-quick-card" onclick="switchPage('roles-management')">
+                                            <span class="quick-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                                            <span class="quick-card-label">角色管理</span>
+                                        </a>
+                                        <a class="dashboard-quick-card" onclick="switchPage('settings')">
+                                            <span class="quick-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                                            <span class="quick-card-label">系统设置</span>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1153,6 +1182,36 @@
                             <div id="batch-queues-list" class="batch-queues-list"></div>
                             <!-- 分页控件 -->
                             <div id="batch-queues-pagination" class="pagination-container pagination-fixed"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 扩展市场页面 -->
+                <div id="page-extensions-market" class="page">
+                    <div class="page-header">
+                        <h2>扩展市场</h2>
+                        <div class="page-header-actions">
+                            <button class="btn-secondary" onclick="loadExtensionsMarket()">刷新</button>
+                        </div>
+                    </div>
+                    <div class="page-content">
+                        <div id="extensions-market-list" class="skills-grid">
+                            <div class="loading-spinner">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 插件管理页面 -->
+                <div id="page-plugin-management" class="page">
+                    <div class="page-header">
+                        <h2>插件管理</h2>
+                        <div class="page-header-actions">
+                            <button class="btn-secondary" onclick="loadPlugins()">刷新</button>
+                        </div>
+                    </div>
+                    <div class="page-content">
+                        <div id="plugin-list" class="skills-grid">
+                            <div class="loading-spinner">加载中...</div>
                         </div>
                     </div>
                 </div>
