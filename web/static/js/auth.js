@@ -123,20 +123,12 @@ async function ensureAuthenticated() {
     return true;
 }
 
-function handleUnauthorized({ message = null, silent = false } = {}) {
+function handleUnauthorized({ message = '认证已过期，请重新登录', silent = false } = {}) {
     clearAuthStorage();
     authPromise = null;
     authPromiseResolvers = [];
-    let finalMessage = message;
-    if (!finalMessage) {
-        if (typeof window !== 'undefined' && typeof window.t === 'function') {
-            finalMessage = window.t('auth.sessionExpired');
-        } else {
-            finalMessage = '认证已过期，请重新登录';
-        }
-    }
     if (!silent) {
-        showLoginOverlay(finalMessage);
+        showLoginOverlay(message);
     } else {
         showLoginOverlay();
     }
@@ -155,60 +147,9 @@ async function apiFetch(url, options = {}) {
     const response = await fetch(url, opts);
     if (response.status === 401) {
         handleUnauthorized();
-        const msg = (typeof window !== 'undefined' && typeof window.t === 'function')
-            ? window.t('auth.unauthorized')
-            : '未授权访问';
-        throw new Error(msg);
+        throw new Error('未授权访问');
     }
     return response;
-}
-
-/**
- * multipart POST with XMLHttpRequest so upload progress is available (fetch 无法可靠上报进度).
- * 返回与 fetch 类似的对象：ok、status、json()、text()
- */
-async function apiUploadWithProgress(url, formData, options = {}) {
-    await ensureAuthenticated();
-    const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null;
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', url);
-        if (authToken) {
-            xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
-        }
-        xhr.upload.onprogress = (e) => {
-            if (!onProgress || !e.lengthComputable) return;
-            const percent = e.total > 0 ? Math.round((e.loaded / e.total) * 100) : 0;
-            onProgress({ loaded: e.loaded, total: e.total, percent });
-        };
-        xhr.onerror = () => {
-            reject(new Error('Network error'));
-        };
-        xhr.onload = () => {
-            if (xhr.status === 401) {
-                handleUnauthorized();
-                const msg = (typeof window !== 'undefined' && typeof window.t === 'function')
-                    ? window.t('auth.unauthorized')
-                    : '未授权访问';
-                reject(new Error(msg));
-                return;
-            }
-            const responseText = xhr.responseText || '';
-            resolve({
-                ok: xhr.status >= 200 && xhr.status < 300,
-                status: xhr.status,
-                text: async () => responseText,
-                json: async () => {
-                    try {
-                        return responseText ? JSON.parse(responseText) : {};
-                    } catch (err) {
-                        throw err;
-                    }
-                },
-            });
-        };
-        xhr.send(formData);
-    });
 }
 
 async function submitLogin(event) {
@@ -224,10 +165,7 @@ async function submitLogin(event) {
     const password = passwordInput.value.trim();
     if (!password) {
         if (errorBox) {
-            const msgEmpty = (typeof window !== 'undefined' && typeof window.t === 'function')
-                ? window.t('auth.enterPassword')
-                : '请输入密码';
-            errorBox.textContent = msgEmpty;
+            errorBox.textContent = '请输入密码';
             errorBox.style.display = 'block';
         }
         return;
@@ -248,10 +186,7 @@ async function submitLogin(event) {
         const result = await response.json().catch(() => ({}));
         if (!response.ok || !result.token) {
             if (errorBox) {
-                const fallback = (typeof window !== 'undefined' && typeof window.t === 'function')
-                    ? window.t('auth.loginFailedCheck')
-                    : '登录失败，请检查密码';
-                errorBox.textContent = result.error || fallback;
+                errorBox.textContent = result.error || '登录失败，请检查密码';
                 errorBox.style.display = 'block';
             }
             return;
@@ -268,10 +203,7 @@ async function submitLogin(event) {
     } catch (error) {
         console.error('登录失败:', error);
         if (errorBox) {
-            const fallback = (typeof window !== 'undefined' && typeof window.t === 'function')
-                ? window.t('auth.loginFailedRetry')
-                : '登录失败，请稍后重试';
-            errorBox.textContent = fallback;
+            errorBox.textContent = '登录失败，请稍后重试';
             errorBox.style.display = 'block';
         }
     } finally {
@@ -290,14 +222,6 @@ async function refreshAppData(showTaskErrors = false) {
 
 async function bootstrapApp() {
     if (!isAppInitialized) {
-        // 等待 i18n 首包加载完成后再插系统就绪消息，避免清除缓存后语言显示 English 气泡仍是中文
-        try {
-            if (window.i18nReady && typeof window.i18nReady.then === 'function') {
-                await window.i18nReady;
-            }
-        } catch (e) {
-            console.warn('等待 i18n 就绪失败，继续初始化聊天', e);
-        }
         initializeChatUI();
         isAppInitialized = true;
     }
@@ -306,13 +230,13 @@ async function bootstrapApp() {
 
 // 通用工具函数
 function getStatusText(status) {
-    if (typeof window.t !== 'function') {
-        const fallback = { pending: '等待中', running: '执行中', completed: '已完成', failed: '失败' };
-        return fallback[status] || status;
-    }
-    const keyMap = { pending: 'mcpDetailModal.statusPending', running: 'mcpDetailModal.statusRunning', completed: 'mcpDetailModal.statusCompleted', failed: 'mcpDetailModal.statusFailed' };
-    const key = keyMap[status];
-    return key ? window.t(key) : status;
+    const statusMap = {
+        'pending': '等待中',
+        'running': '执行中',
+        'completed': '已完成',
+        'failed': '失败'
+    };
+    return statusMap[status] || status;
 }
 
 function formatDuration(ms) {
@@ -451,7 +375,7 @@ async function logout() {
         // 无论如何都清除本地认证信息
         clearAuthStorage();
         hideLoginOverlay();
-        showLoginOverlay(typeof window.t === 'function' ? window.t('auth.loggedOut') : '已退出登录');
+        showLoginOverlay('已退出登录');
     }
 }
 

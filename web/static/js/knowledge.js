@@ -1,37 +1,4 @@
 // 知识库管理相关功能
-function _t(key, opts) {
-    return typeof window.t === 'function' ? window.t(key, opts) : key;
-}
-
-// 返回「知识库未启用」提示区块的 HTML（使用 data-i18n 以便语言切换时自动更新）
-function getKnowledgeNotEnabledHTML() {
-    return `
-        <div class="empty-state" style="text-align: center; padding: 40px 20px;">
-            <div style="font-size: 48px; margin-bottom: 20px;">📚</div>
-            <h3 data-i18n="knowledge.notEnabledTitle" style="margin-bottom: 10px; color: #666;"></h3>
-            <p data-i18n="knowledge.notEnabledHint" style="color: #999; margin-bottom: 20px;"></p>
-            <button data-i18n="knowledge.goToSettings" onclick="switchToSettings()" style="
-                background: #007bff;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                font-size: 14px;
-            "></button>
-        </div>
-    `;
-}
-
-// 渲染「知识库未启用」状态到容器，并应用当前语言
-function renderKnowledgeNotEnabledState(container) {
-    if (!container) return;
-    container.innerHTML = getKnowledgeNotEnabledHTML();
-    if (typeof window.applyTranslations === 'function') {
-        window.applyTranslations(container);
-    }
-}
-
 let knowledgeCategories = [];
 let knowledgeItems = [];
 let currentEditingItemId = null;
@@ -65,8 +32,26 @@ async function loadKnowledgeCategories() {
         
         // 检查知识库功能是否启用
         if (data.enabled === false) {
-            // 功能未启用，显示友好提示（使用 data-i18n，切换语言时会自动更新）
-            renderKnowledgeNotEnabledState(document.getElementById('knowledge-items-list'));
+            // 功能未启用，显示友好提示
+            const container = document.getElementById('knowledge-items-list');
+            if (container) {
+                container.innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">📚</div>
+                        <h3 style="margin-bottom: 10px; color: #666;">知识库功能未启用</h3>
+                        <p style="color: #999; margin-bottom: 20px;">${data.message || '请前往系统设置启用知识检索功能'}</p>
+                        <button onclick="switchToSettings()" style="
+                            background: #007bff;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 14px;
+                        ">前往设置</button>
+                    </div>
+                `;
+            }
             return [];
         }
         
@@ -131,10 +116,25 @@ async function loadKnowledgeItems(category = '', page = 1, pageSize = 10) {
         
         // 检查知识库功能是否启用
         if (data.enabled === false) {
-            // 功能未启用，显示友好提示（如果还没有显示的话；使用 data-i18n，切换语言时会自动更新）
+            // 功能未启用，显示友好提示（如果还没有显示的话）
             const container = document.getElementById('knowledge-items-list');
             if (container && !container.querySelector('.empty-state')) {
-                renderKnowledgeNotEnabledState(container);
+                container.innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">📚</div>
+                        <h3 style="margin-bottom: 10px; color: #666;">知识库功能未启用</h3>
+                        <p style="color: #999; margin-bottom: 20px;">${data.message || '请前往系统设置启用知识检索功能'}</p>
+                        <button onclick="switchToSettings()" style="
+                            background: #007bff;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 14px;
+                        ">前往设置</button>
+                    </div>
+                `;
             }
             knowledgeItems = [];
             knowledgePagination.total = 0;
@@ -753,7 +753,25 @@ async function searchKnowledgeItems() {
         
         // 检查知识库功能是否启用
         if (data.enabled === false) {
-            renderKnowledgeNotEnabledState(document.getElementById('knowledge-items-list'));
+            const container = document.getElementById('knowledge-items-list');
+            if (container) {
+                container.innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">📚</div>
+                        <h3 style="margin-bottom: 10px; color: #666;">知识库功能未启用</h3>
+                        <p style="color: #999; margin-bottom: 20px;">${data.message || '请前往系统设置启用知识检索功能'}</p>
+                        <button onclick="switchToSettings()" style="
+                            background: #007bff;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 14px;
+                        ">前往设置</button>
+                    </div>
+                `;
+            }
             return;
         }
         
@@ -1294,7 +1312,7 @@ async function loadRetrievalLogs(conversationId = '', messageId = '') {
         renderRetrievalLogs([]);
         // 只在非空筛选条件下才显示错误通知（避免在没有数据时显示错误）
         if (conversationId || messageId) {
-            showNotification(_t('retrievalLogs.loadError') + ': ' + error.message, 'error');
+            showNotification('加载检索日志失败: ' + error.message, 'error');
         }
     }
 }
@@ -1308,7 +1326,7 @@ function renderRetrievalLogs(logs) {
     updateRetrievalStats(logs);
     
     if (logs.length === 0) {
-        container.innerHTML = '<div class="empty-state">' + _t('retrievalLogs.noRecords') + '</div>';
+        container.innerHTML = '<div class="empty-state">暂无检索记录</div>';
         retrievalLogsData = [];
         return;
     }
@@ -1368,7 +1386,7 @@ function renderRetrievalLogs(logs) {
                     </div>
                     <div class="retrieval-log-main-info">
                         <div class="retrieval-log-query">
-                            ${escapeHtml(log.query || _t('retrievalLogs.noQuery'))}
+                            ${escapeHtml(log.query || '无查询内容')}
                         </div>
                         <div class="retrieval-log-meta">
                             <span class="retrieval-log-time" title="${formatTime(log.createdAt)}">
@@ -1378,33 +1396,33 @@ function renderRetrievalLogs(logs) {
                         </div>
                     </div>
                     <div class="retrieval-log-result-badge ${hasResults ? 'success' : 'empty'}">
-                        ${hasResults ? (itemCount > 0 ? itemCount + ' ' + _t('retrievalLogs.itemsUnit') : _t('retrievalLogs.hasResults')) : _t('retrievalLogs.noResults')}
+                        ${hasResults ? (itemCount > 0 ? `${itemCount} 项` : '有结果') : '无结果'}
                     </div>
                 </div>
                 <div class="retrieval-log-card-body">
                     <div class="retrieval-log-details-grid">
                         ${log.conversationId ? `
                             <div class="retrieval-log-detail-item">
-                                <span class="detail-label">${_t('retrievalLogs.conversationId')}</span>
-                                <code class="detail-value" title="${_t('retrievalLogs.clickToCopy')}" data-copy-title-copied="${_t('common.copied')}" data-copy-title-click="${_t('retrievalLogs.clickToCopy')}" onclick="var t=this; navigator.clipboard.writeText('${escapeHtml(log.conversationId)}').then(function(){ t.title=t.getAttribute('data-copy-title-copied')||'Copied!'; setTimeout(function(){ t.title=t.getAttribute('data-copy-title-click')||'Click to copy'; }, 2000); });" style="cursor: pointer;">${escapeHtml(log.conversationId)}</code>
+                                <span class="detail-label">对话ID</span>
+                                <code class="detail-value" title="点击复制" onclick="navigator.clipboard.writeText('${escapeHtml(log.conversationId)}'); this.title='已复制!'; setTimeout(() => this.title='点击复制', 2000);" style="cursor: pointer;">${escapeHtml(log.conversationId)}</code>
                             </div>
                         ` : ''}
                         ${log.messageId ? `
                             <div class="retrieval-log-detail-item">
-                                <span class="detail-label">${_t('retrievalLogs.messageId')}</span>
-                                <code class="detail-value" title="${_t('retrievalLogs.clickToCopy')}" data-copy-title-copied="${_t('common.copied')}" data-copy-title-click="${_t('retrievalLogs.clickToCopy')}" onclick="var el=this; navigator.clipboard.writeText('${escapeHtml(log.messageId)}').then(function(){ el.title=el.getAttribute('data-copy-title-copied')||el.title; setTimeout(function(){ el.title=el.getAttribute('data-copy-title-click')||el.title; }, 2000); });" style="cursor: pointer;">${escapeHtml(log.messageId)}</code>
+                                <span class="detail-label">消息ID</span>
+                                <code class="detail-value" title="点击复制" onclick="navigator.clipboard.writeText('${escapeHtml(log.messageId)}'); this.title='已复制!'; setTimeout(() => this.title='点击复制', 2000);" style="cursor: pointer;">${escapeHtml(log.messageId)}</code>
                             </div>
                         ` : ''}
                         <div class="retrieval-log-detail-item">
-                            <span class="detail-label">${_t('retrievalLogs.retrievalResult')}</span>
+                            <span class="detail-label">检索结果</span>
                             <span class="detail-value ${hasResults ? 'text-success' : 'text-muted'}">
-                                ${hasResults ? (itemCount > 0 ? _t('retrievalLogs.foundCount', { count: itemCount }) : _t('retrievalLogs.foundUnknown')) : _t('retrievalLogs.noMatch')}
+                                ${hasResults ? (itemCount > 0 ? `找到 ${itemCount} 个相关知识项` : '找到相关知识项（数量未知）') : '未找到匹配的知识项'}
                             </span>
                         </div>
                     </div>
                     ${hasResults && log.retrievedItems && log.retrievedItems.length > 0 ? `
                         <div class="retrieval-log-items-preview">
-                            <div class="retrieval-log-items-label">${_t('retrievalLogs.retrievedItemsLabel')}</div>
+                            <div class="retrieval-log-items-label">检索到的知识项:</div>
                             <div class="retrieval-log-items-list">
                                 ${log.retrievedItems.slice(0, 3).map((itemId, idx) => `
                                     <span class="retrieval-log-item-tag">${idx + 1}</span>
@@ -1419,13 +1437,13 @@ function renderRetrievalLogs(logs) {
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            ${_t('retrievalLogs.viewDetails')}
+                            查看详情
                         </button>
-                        <button class="btn-secondary btn-sm retrieval-log-delete-btn" onclick="deleteRetrievalLog('${escapeHtml(log.id)}', ${index})" style="margin-top: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: var(--error-color, #dc3545); border-color: var(--error-color, #dc3545);" onmouseover="this.style.backgroundColor='rgba(220, 53, 69, 0.1)'; this.style.color='#dc3545';" onmouseout="this.style.backgroundColor=''; this.style.color='var(--error-color, #dc3545)';" title="${_t('common.delete')}">
+                        <button class="btn-secondary btn-sm retrieval-log-delete-btn" onclick="deleteRetrievalLog('${escapeHtml(log.id)}', ${index})" style="margin-top: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: var(--error-color, #dc3545); border-color: var(--error-color, #dc3545);" onmouseover="this.style.backgroundColor='rgba(220, 53, 69, 0.1)'; this.style.color='#dc3545';" onmouseout="this.style.backgroundColor=''; this.style.color='var(--error-color, #dc3545)';" title="删除">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            ${_t('common.delete')}
+                            删除
                         </button>
                     </div>
                 </div>
@@ -1462,25 +1480,22 @@ function updateRetrievalStats(logs) {
     
     statsContainer.innerHTML = `
         <div class="retrieval-stat-item">
-            <span class="retrieval-stat-label" data-i18n="retrievalLogs.totalRetrievals">总检索次数</span>
+            <span class="retrieval-stat-label">总检索次数</span>
             <span class="retrieval-stat-value">${totalLogs}</span>
         </div>
         <div class="retrieval-stat-item">
-            <span class="retrieval-stat-label" data-i18n="retrievalLogs.successRetrievals">成功检索</span>
+            <span class="retrieval-stat-label">成功检索</span>
             <span class="retrieval-stat-value text-success">${successfulLogs}</span>
         </div>
         <div class="retrieval-stat-item">
-            <span class="retrieval-stat-label" data-i18n="retrievalLogs.successRate">成功率</span>
+            <span class="retrieval-stat-label">成功率</span>
             <span class="retrieval-stat-value">${successRate}%</span>
         </div>
         <div class="retrieval-stat-item">
-            <span class="retrieval-stat-label" data-i18n="retrievalLogs.retrievedItems">检索到知识项</span>
+            <span class="retrieval-stat-label">检索到知识项</span>
             <span class="retrieval-stat-value">${totalItems}</span>
         </div>
     `;
-    if (typeof window.applyTranslations === 'function') {
-        window.applyTranslations(statsContainer);
-    }
 }
 
 // 获取相对时间
@@ -1576,7 +1591,7 @@ function refreshRetrievalLogs() {
 
 // 删除检索日志
 async function deleteRetrievalLog(id, index) {
-    if (!confirm(_t('retrievalLogs.deleteConfirm'))) {
+    if (!confirm('确定要删除这条检索记录吗？')) {
         return;
     }
     
@@ -1662,7 +1677,7 @@ async function deleteRetrievalLog(id, index) {
             }
         }
         
-        showNotification(_t('retrievalLogs.deleteError') + ': ' + error.message, 'error');
+        showNotification('❌ 删除检索日志失败: ' + error.message, 'error');
     }
 }
 
@@ -1684,11 +1699,12 @@ function updateRetrievalStatsAfterDelete() {
         const badge = card.querySelector('.retrieval-log-result-badge');
         if (badge && badge.classList.contains('success')) {
             const text = badge.textContent.trim();
-            const match = text.match(/(\d+)/);
+            const match = text.match(/(\d+)\s*项/);
             if (match) {
-                return sum + parseInt(match[1], 10);
+                return sum + parseInt(match[1]);
+            } else if (text === '有结果') {
+                return sum + 1; // 简化处理，假设为1
             }
-            return sum + 1; // 有结果但数量未知（如 "Has results" / "有结果"）
         }
         return sum;
     }, 0);
@@ -1697,31 +1713,28 @@ function updateRetrievalStatsAfterDelete() {
     
     statsContainer.innerHTML = `
         <div class="retrieval-stat-item">
-            <span class="retrieval-stat-label" data-i18n="retrievalLogs.totalRetrievals">总检索次数</span>
+            <span class="retrieval-stat-label">总检索次数</span>
             <span class="retrieval-stat-value">${totalLogs}</span>
         </div>
         <div class="retrieval-stat-item">
-            <span class="retrieval-stat-label" data-i18n="retrievalLogs.successRetrievals">成功检索</span>
+            <span class="retrieval-stat-label">成功检索</span>
             <span class="retrieval-stat-value text-success">${successfulLogs}</span>
         </div>
         <div class="retrieval-stat-item">
-            <span class="retrieval-stat-label" data-i18n="retrievalLogs.successRate">成功率</span>
+            <span class="retrieval-stat-label">成功率</span>
             <span class="retrieval-stat-value">${successRate}%</span>
         </div>
         <div class="retrieval-stat-item">
-            <span class="retrieval-stat-label" data-i18n="retrievalLogs.retrievedItems">检索到知识项</span>
+            <span class="retrieval-stat-label">检索到知识项</span>
             <span class="retrieval-stat-value">${totalItems}</span>
         </div>
     `;
-    if (typeof window.applyTranslations === 'function') {
-        window.applyTranslations(statsContainer);
-    }
 }
 
 // 显示检索日志详情
 async function showRetrievalLogDetails(index) {
     if (!retrievalLogsData || index < 0 || index >= retrievalLogsData.length) {
-        showNotification(_t('retrievalLogs.detailError'), 'error');
+        showNotification('无法获取检索详情', 'error');
         return;
     }
     
@@ -1770,19 +1783,16 @@ function showRetrievalLogDetailsModal(log, retrievedItems) {
         modal.innerHTML = `
             <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
                 <div class="modal-header">
-                    <h2 data-i18n="retrievalLogs.detailsTitle">检索详情</h2>
+                    <h2>检索详情</h2>
                     <span class="modal-close" onclick="closeRetrievalLogDetailsModal()">&times;</span>
                 </div>
                 <div class="modal-body" id="retrieval-log-details-content">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="closeRetrievalLogDetailsModal()" data-i18n="common.close">关闭</button>
+                    <button class="btn-secondary" onclick="closeRetrievalLogDetailsModal()">关闭</button>
                 </div>
             </div>
         `;
-        if (typeof window.applyTranslations === 'function') {
-            window.applyTranslations(modal);
-        }
         document.body.appendChild(modal);
     }
     
@@ -1806,57 +1816,57 @@ function showRetrievalLogDetailsModal(log, retrievedItems) {
             return `
                 <div class="retrieval-detail-item-card" style="margin-bottom: 16px; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary);">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                        <h4 style="margin: 0; color: var(--text-primary);">${idx + 1}. ${escapeHtml(item.title || _t('retrievalLogs.untitled'))}</h4>
-                        <span style="font-size: 0.875rem; color: var(--text-secondary);">${escapeHtml(item.category || _t('retrievalLogs.uncategorized'))}</span>
+                        <h4 style="margin: 0; color: var(--text-primary);">${idx + 1}. ${escapeHtml(item.title || '未命名')}</h4>
+                        <span style="font-size: 0.875rem; color: var(--text-secondary);">${escapeHtml(item.category || '未分类')}</span>
                     </div>
                     ${item.filePath ? `<div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 8px;">📁 ${escapeHtml(item.filePath)}</div>` : ''}
                     <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
-                        ${escapeHtml(previewText || _t('retrievalLogs.noContentPreview'))}
+                        ${escapeHtml(previewText || '无内容预览')}
                     </div>
                 </div>
             `;
         }).join('');
     } else {
-        itemsHtml = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">' + _t('retrievalLogs.noItemDetails') + '</div>';
+        itemsHtml = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">未找到知识项详情</div>';
     }
     
     content.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 20px;">
             <div class="retrieval-detail-section">
-                <h3 style="margin: 0 0 12px 0; font-size: 1.125rem; color: var(--text-primary);">${_t('retrievalLogs.queryInfo')}</h3>
+                <h3 style="margin: 0 0 12px 0; font-size: 1.125rem; color: var(--text-primary);">查询信息</h3>
                 <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px; border-left: 3px solid var(--accent-color);">
-                    <div style="font-weight: 500; margin-bottom: 8px; color: var(--text-primary);">${_t('retrievalLogs.queryContent')}</div>
-                    <div style="color: var(--text-primary); line-height: 1.6; word-break: break-word;">${escapeHtml(log.query || _t('retrievalLogs.noQuery'))}</div>
+                    <div style="font-weight: 500; margin-bottom: 8px; color: var(--text-primary);">查询内容:</div>
+                    <div style="color: var(--text-primary); line-height: 1.6; word-break: break-word;">${escapeHtml(log.query || '无查询内容')}</div>
                 </div>
             </div>
             
             <div class="retrieval-detail-section">
-                <h3 style="margin: 0 0 12px 0; font-size: 1.125rem; color: var(--text-primary);">${_t('retrievalLogs.retrievalInfo')}</h3>
+                <h3 style="margin: 0 0 12px 0; font-size: 1.125rem; color: var(--text-primary);">检索信息</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                     ${log.riskType ? `
                         <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
-                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">${_t('retrievalLogs.riskType')}</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">风险类型</div>
                             <div style="font-weight: 500; color: var(--text-primary);">${escapeHtml(log.riskType)}</div>
                         </div>
                     ` : ''}
                     <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
-                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">${_t('retrievalLogs.retrievalTime')}</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">检索时间</div>
                         <div style="font-weight: 500; color: var(--text-primary);" title="${fullTime}">${timeAgo}</div>
                     </div>
                     <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
-                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">${_t('retrievalLogs.retrievalResult')}</div>
-                        <div style="font-weight: 500; color: var(--text-primary);">${_t('retrievalLogs.itemsCount', { count: retrievedItems.length })}</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">检索结果</div>
+                        <div style="font-weight: 500; color: var(--text-primary);">${retrievedItems.length} 个知识项</div>
                     </div>
                 </div>
             </div>
             
             ${log.conversationId || log.messageId ? `
                 <div class="retrieval-detail-section">
-                    <h3 style="margin: 0 0 12px 0; font-size: 1.125rem; color: var(--text-primary);">${_t('retrievalLogs.relatedInfo')}</h3>
+                    <h3 style="margin: 0 0 12px 0; font-size: 1.125rem; color: var(--text-primary);">关联信息</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                         ${log.conversationId ? `
                             <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
-                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">${_t('retrievalLogs.conversationId')}</div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">对话ID</div>
                                 <code style="font-size: 0.8125rem; color: var(--text-primary); word-break: break-all; cursor: pointer;" 
                                       onclick="navigator.clipboard.writeText('${escapeHtml(log.conversationId)}'); this.title='已复制!'; setTimeout(() => this.title='点击复制', 2000);" 
                                       title="点击复制">${escapeHtml(log.conversationId)}</code>
@@ -1864,7 +1874,7 @@ function showRetrievalLogDetailsModal(log, retrievedItems) {
                         ` : ''}
                         ${log.messageId ? `
                             <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
-                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">${_t('retrievalLogs.messageId')}</div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px;">消息ID</div>
                                 <code style="font-size: 0.8125rem; color: var(--text-primary); word-break: break-all; cursor: pointer;" 
                                       onclick="navigator.clipboard.writeText('${escapeHtml(log.messageId)}'); this.title='已复制!'; setTimeout(() => this.title='点击复制', 2000);" 
                                       title="点击复制">${escapeHtml(log.messageId)}</code>
@@ -1897,22 +1907,6 @@ window.addEventListener('click', function(event) {
     const modal = document.getElementById('retrieval-log-details-modal');
     if (event.target === modal) {
         closeRetrievalLogDetailsModal();
-    }
-});
-
-// 语言切换时重新渲染检索历史列表与统计，使动态内容随语言更新；知识管理页的「未启用」区块已使用 data-i18n，会由 applyTranslations(document) 自动更新
-document.addEventListener('languagechange', function () {
-    var cur = typeof window.currentPage === 'function' ? window.currentPage() : (window.currentPage || '');
-    if (cur === 'knowledge-retrieval-logs') {
-        if (retrievalLogsData && retrievalLogsData.length >= 0) {
-            renderRetrievalLogs(retrievalLogsData);
-        }
-    } else if (cur === 'knowledge-management') {
-        // 仅对「知识库未启用」状态：已有 data-i18n，applyTranslations 已处理；此处可选地重新应用一次以兼容旧 DOM
-        var listEl = document.getElementById('knowledge-items-list');
-        if (listEl && typeof window.applyTranslations === 'function') {
-            window.applyTranslations(listEl);
-        }
     }
 });
 
