@@ -15,7 +15,7 @@ args:
     duration = int(sys.argv[5]) if len(sys.argv) > 5 and sys.argv[5] else 300
     extra = sys.argv[6] if len(sys.argv) > 6 else ""
 
-    cmd = ["responder", "-I", interface]
+    cmd = ["responder", "-i", interface]
     if analyze:
         cmd.append("-A")
     if wpad:
@@ -43,7 +43,7 @@ description: |
 parameters:
   - name: "interface"
     type: "string"
-    description: "网络接口（-I）"
+    description: "网络接口（-i）"
     required: false
     default: "eth0"
     position: 0

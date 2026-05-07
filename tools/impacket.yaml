@@ -44,7 +44,7 @@ short_description: "Impacket 网络协议工具集，用于网络协议攻击和
 description: |
   Impacket 是一个 Python 工具集，用于处理网络协议，常用于渗透测试和横向移动。
 
-  **主要功能：**
+  **主要功能**
   - SMB 协议攻击
   - Kerberos 协议攻击
   - RPC 协议攻击
@@ -52,20 +52,20 @@ description: |
   - 凭证转储
   - 票据传递攻击
 
-  **常用工具：**
+  **常用工具**
   - psexec: 远程命令执行
   - smbexec: SMB 远程执行
   - wmiexec: WMI 远程执行
   - secretsdump: 凭证转储
   - getTGT: Kerberos 票据获取
 
-  **使用场景：**
+  **使用场景**
   - 横向移动
   - 凭证转储
   - 远程命令执行
   - 后渗透测试
 
-  **注意事项：**
+  **注意事项**
   - 需要 Python 环境
   - 需要相应的凭据
   - 仅用于授权的安全测试
