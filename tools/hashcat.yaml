@@ -3,19 +3,10 @@ command: "hashcat"
 enabled: true
 short_description: "高级密码破解工具，支持GPU加速"
 description: |
-  Hashcat是一个高级密码恢复工具，支持多种哈希算法和攻击模式。
+  Hashcat是一个高级密码恢复工具，支持多种哈希算法、攻击模式。
+  主要功能：支持多种哈希算法、CPU/GPU加速、字典/掩码攻击。
+  使用场景：安全测试、密码审计、哈希破解。
 
-  **主要功能：**
-  - 支持多种哈希算法
-  - GPU加速
-  - 多种攻击模式（字典、组合、掩码等）
-  - 规则引擎
-
-  **使用场景：**
-  - 密码恢复
-  - 哈希破解
-  - 安全测试
-  - 取证分析
 parameters:
   - name: "hash_file"
     type: "string"
@@ -23,19 +14,6 @@ parameters:
     required: true
     position: 0
     format: "positional"
-  - name: "hash_type"
-    type: "string"
-    description: "哈希类型编号"
-    required: true
-    flag: "-m"
-    format: "flag"
-  - name: "attack_mode"
-    type: "string"
-    description: "攻击模式（0=字典, 1=组合, 3=掩码等）"
-    required: false
-    default: "0"
-    flag: "-a"
-    format: "flag"
   - name: "wordlist"
     type: "string"
     description: "字典文件"
@@ -43,14 +21,23 @@ parameters:
     default: "/usr/share/wordlists/rockyou.txt"
     position: 1
     format: "positional"
-  - name: "mask"
+  - name: "hash_type"
     type: "string"
-    description: "掩码（用于掩码攻击）"
+    description: "哈希类型编号(0=MD5)"
+    required: true
+    default: "0"
+    flag: "-m"
+    format: "flag"
+  - name: "attack_mode"
+    type: "string"
+    description: "攻击模式（0=字典）"
     required: false
-    position: 2
-    format: "positional"
+    default: "0"
+    flag: "-a"
+    format: "flag"
   - name: "additional_args"
     type: "string"
-    description: "额外的Hashcat参数"
+    description: "额外参数"
     required: false
-    format: "positional"
+    default: "--show"
+    format: "flag"

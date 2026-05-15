@@ -4,14 +4,14 @@ enabled: true
 short_description: "John the Ripper密码破解工具"
 description: |
   John the Ripper是一个快速的密码破解工具，支持多种哈希算法。
-
-  **主要功能：**
+  --test 用于测试
+  **主要功能**
   - 多种哈希算法支持
   - 字典攻击
   - 暴力破解
   - 规则引擎
 
-  **使用场景：**
+  **使用场景**
   - 密码恢复
   - 哈希破解
   - 安全测试
