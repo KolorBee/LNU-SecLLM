@@ -117,16 +117,6 @@ async function loadConfig(loadTools = true) {
         
         // 填充Agent配置
         document.getElementById('agent-max-iterations').value = currentConfig.agent.max_iterations || 30;
-
-        const ma = currentConfig.multi_agent || {};
-        const maEn = document.getElementById('multi-agent-enabled');
-        if (maEn) maEn.checked = ma.enabled === true;
-        const maMode = document.getElementById('multi-agent-default-mode');
-        if (maMode) maMode.value = (ma.default_mode === 'multi') ? 'multi' : 'single';
-        const maRobot = document.getElementById('multi-agent-robot-use');
-        if (maRobot) maRobot.checked = ma.robot_use_multi_agent === true;
-        const maBatch = document.getElementById('multi-agent-batch-use');
-        if (maBatch) maBatch.checked = ma.batch_use_multi_agent === true;
         
         // 填充知识库配置
         const knowledgeEnabledCheckbox = document.getElementById('knowledge-enabled');
@@ -265,10 +255,7 @@ async function loadConfig(loadTools = true) {
         }
     } catch (error) {
         console.error('加载配置失败:', error);
-        const baseMsg = (typeof window !== 'undefined' && typeof window.t === 'function')
-            ? window.t('settings.apply.loadFailed')
-            : '加载配置失败';
-        alert(baseMsg + ': ' + error.message);
+        alert('加载配置失败: ' + error.message);
     }
 }
 
@@ -282,7 +269,7 @@ async function loadToolsList(page = 1, searchKeyword = '') {
     // 显示加载状态
     if (toolsList) {
         // 清空整个容器，包括可能存在的分页控件
-        toolsList.innerHTML = '<div class="tools-list-items"><div class="loading" style="padding: 20px; text-align: center; color: var(--text-muted);">⏳ ' + (typeof window.t === 'function' ? window.t('mcp.loadingTools') : '正在加载工具列表...') + '</div></div>';
+        toolsList.innerHTML = '<div class="tools-list-items"><div class="loading" style="padding: 20px; text-align: center; color: var(--text-muted);">⏳ 正在加载工具列表...</div></div>';
     }
     
     try {
@@ -337,8 +324,8 @@ async function loadToolsList(page = 1, searchKeyword = '') {
         if (toolsList) {
             const isTimeout = error.name === 'AbortError' || error.message.includes('timeout');
             const errorMsg = isTimeout 
-                ? (typeof window.t === 'function' ? window.t('mcp.loadToolsTimeout') : '加载工具列表超时，可能是外部MCP连接较慢。请点击"刷新"按钮重试，或检查外部MCP连接状态。')
-                : (typeof window.t === 'function' ? window.t('mcp.loadToolsFailed') : '加载工具列表失败') + ': ' + escapeHtml(error.message);
+                ? '加载工具列表超时，可能是外部MCP连接较慢。请点击"刷新"按钮重试，或检查外部MCP连接状态。'
+                : `加载工具列表失败: ${escapeHtml(error.message)}`;
             toolsList.innerHTML = `<div class="error" style="padding: 20px; text-align: center;">${errorMsg}</div>`;
         }
     }
@@ -412,7 +399,7 @@ function renderToolsList() {
     listContainer.innerHTML = '';
     
     if (allTools.length === 0) {
-        listContainer.innerHTML = '<div class="empty">' + (typeof window.t === 'function' ? window.t('mcp.noTools') : '暂无工具') + '</div>';
+        listContainer.innerHTML = '<div class="empty">暂无工具</div>';
         if (!toolsList.contains(listContainer)) {
             toolsList.appendChild(listContainer);
         }
@@ -441,8 +428,8 @@ function renderToolsList() {
         let externalBadge = '';
         if (toolState.is_external || tool.is_external) {
             const externalMcpName = toolState.external_mcp || tool.external_mcp || '';
-            const badgeText = externalMcpName ? (typeof window.t === 'function' ? window.t('mcp.externalFrom', { name: escapeHtml(externalMcpName) }) : `外部 (${escapeHtml(externalMcpName)})`) : (typeof window.t === 'function' ? window.t('mcp.externalBadge') : '外部');
-            const badgeTitle = externalMcpName ? (typeof window.t === 'function' ? window.t('mcp.externalToolFrom', { name: escapeHtml(externalMcpName) }) : `外部MCP工具 - 来源：${escapeHtml(externalMcpName)}`) : (typeof window.t === 'function' ? window.t('mcp.externalBadge') : '外部MCP工具');
+            const badgeText = externalMcpName ? `外部 (${escapeHtml(externalMcpName)})` : '外部';
+            const badgeTitle = externalMcpName ? `外部MCP工具 - 来源：${escapeHtml(externalMcpName)}` : '外部MCP工具';
             externalBadge = `<span class="external-tool-badge" title="${badgeTitle}">${badgeText}</span>`;
         }
         
@@ -456,7 +443,7 @@ function renderToolsList() {
                     ${escapeHtml(tool.name)}
                     ${externalBadge}
                 </div>
-                <div class="tool-item-desc">${escapeHtml(tool.description || (typeof window.t === 'function' ? window.t('mcp.noDescription') : '无描述'))}</div>
+                <div class="tool-item-desc">${escapeHtml(tool.description || '无描述')}</div>
             </div>
         `;
         listContainer.appendChild(toolItem);
@@ -494,19 +481,12 @@ function renderToolsPagination() {
     const endItem = Math.min(page * toolsPagination.pageSize, total);
     
     const savedPageSize = getToolsPageSize();
-    const t = typeof window.t === 'function' ? window.t : (k) => k;
-    const paginationT = (key, opts) => {
-        if (typeof window.t === 'function') return window.t(key, opts);
-        if (key === 'mcp.paginationInfo' && opts) return `显示 ${opts.start}-${opts.end} / 共 ${opts.total} 个工具`;
-        if (key === 'mcp.pageInfo' && opts) return `第 ${opts.page} / ${opts.total} 页`;
-        return key;
-    };
     pagination.innerHTML = `
         <div class="pagination-info">
-            ${paginationT('mcp.paginationInfo', { start: startItem, end: endItem, total: total })}${toolsSearchKeyword ? ` (${t('common.search')}: "${escapeHtml(toolsSearchKeyword)}")` : ''}
+            显示 ${startItem}-${endItem} / 共 ${total} 个工具${toolsSearchKeyword ? ` (搜索: "${escapeHtml(toolsSearchKeyword)}")` : ''}
         </div>
         <div class="pagination-page-size">
-            <label for="tools-page-size-pagination">${t('mcp.perPage')}</label>
+            <label for="tools-page-size-pagination">每页:</label>
             <select id="tools-page-size-pagination" onchange="changeToolsPageSize()">
                 <option value="10" ${savedPageSize === 10 ? 'selected' : ''}>10</option>
                 <option value="20" ${savedPageSize === 20 ? 'selected' : ''}>20</option>
@@ -515,11 +495,11 @@ function renderToolsPagination() {
             </select>
         </div>
         <div class="pagination-controls">
-            <button class="btn-secondary" onclick="loadToolsList(1, '${escapeHtml(toolsSearchKeyword)}')" ${page === 1 ? 'disabled' : ''}>${t('mcp.firstPage')}</button>
-            <button class="btn-secondary" onclick="loadToolsList(${page - 1}, '${escapeHtml(toolsSearchKeyword)}')" ${page === 1 ? 'disabled' : ''}>${t('mcp.prevPage')}</button>
-            <span class="pagination-page">${paginationT('mcp.pageInfo', { page: page, total: totalPages })}</span>
-            <button class="btn-secondary" onclick="loadToolsList(${page + 1}, '${escapeHtml(toolsSearchKeyword)}')" ${page === totalPages ? 'disabled' : ''}>${t('mcp.nextPage')}</button>
-            <button class="btn-secondary" onclick="loadToolsList(${totalPages}, '${escapeHtml(toolsSearchKeyword)}')" ${page === totalPages ? 'disabled' : ''}>${t('mcp.lastPage')}</button>
+            <button class="btn-secondary" onclick="loadToolsList(1, '${escapeHtml(toolsSearchKeyword)}')" ${page === 1 ? 'disabled' : ''}>首页</button>
+            <button class="btn-secondary" onclick="loadToolsList(${page - 1}, '${escapeHtml(toolsSearchKeyword)}')" ${page === 1 ? 'disabled' : ''}>上一页</button>
+            <span class="pagination-page">第 ${page} / ${totalPages} 页</span>
+            <button class="btn-secondary" onclick="loadToolsList(${page + 1}, '${escapeHtml(toolsSearchKeyword)}')" ${page === totalPages ? 'disabled' : ''}>下一页</button>
+            <button class="btn-secondary" onclick="loadToolsList(${totalPages}, '${escapeHtml(toolsSearchKeyword)}')" ${page === totalPages ? 'disabled' : ''}>末页</button>
         </div>
     `;
     
@@ -713,10 +693,9 @@ async function updateToolsStats() {
         totalEnabled = currentPageEnabled;
     }
     
-    const tStats = typeof window.t === 'function' ? window.t : (k) => k;
     statsEl.innerHTML = `
-        <span title="${tStats('mcp.currentPageEnabled')}">✅ ${tStats('mcp.currentPageEnabled')}: <strong>${currentPageEnabled}</strong> / ${currentPageTotal}</span>
-        <span title="${tStats('mcp.totalEnabled')}">📊 ${tStats('mcp.totalEnabled')}: <strong>${totalEnabled}</strong> / ${totalTools}</span>
+        <span title="当前页启用的工具数">✅ 当前页已启用: <strong>${currentPageEnabled}</strong> / ${currentPageTotal}</span>
+        <span title="所有工具中启用的工具总数">📊 总计已启用: <strong>${totalEnabled}</strong> / ${totalTools}</span>
     `;
 }
 
@@ -758,10 +737,7 @@ async function applySettings() {
         }
         
         if (hasError) {
-            const msg = (typeof window !== 'undefined' && typeof window.t === 'function')
-                ? window.t('settings.apply.fillRequired')
-                : '请填写所有必填字段（标记为 * 的字段）';
-            alert(msg);
+            alert('请填写所有必填字段（标记为 * 的字段）');
             return;
         }
         
@@ -815,12 +791,6 @@ async function applySettings() {
             },
             agent: {
                 max_iterations: parseInt(document.getElementById('agent-max-iterations').value) || 30
-            },
-            multi_agent: {
-                enabled: document.getElementById('multi-agent-enabled')?.checked === true,
-                default_mode: document.getElementById('multi-agent-default-mode')?.value === 'multi' ? 'multi' : 'single',
-                robot_use_multi_agent: document.getElementById('multi-agent-robot-use')?.checked === true,
-                batch_use_multi_agent: document.getElementById('multi-agent-batch-use')?.checked === true
             },
             knowledge: knowledgeConfig,
             robots: {
@@ -926,10 +896,7 @@ async function applySettings() {
         
         if (!updateResponse.ok) {
             const error = await updateResponse.json();
-            const fallback = (typeof window !== 'undefined' && typeof window.t === 'function')
-                ? window.t('settings.apply.applyFailed')
-                : '应用配置失败';
-            throw new Error(error.error || fallback);
+            throw new Error(error.error || '更新配置失败');
         }
         
         // 应用配置
@@ -939,23 +906,14 @@ async function applySettings() {
         
         if (!applyResponse.ok) {
             const error = await applyResponse.json();
-            const fallback = (typeof window !== 'undefined' && typeof window.t === 'function')
-                ? window.t('settings.apply.applyFailed')
-                : '应用配置失败';
-            throw new Error(error.error || fallback);
+            throw new Error(error.error || '应用配置失败');
         }
         
-        const successMsg = (typeof window !== 'undefined' && typeof window.t === 'function')
-            ? window.t('settings.apply.applySuccess')
-            : '配置已成功应用！';
-        alert(successMsg);
+        alert('配置已成功应用！');
         closeSettings();
     } catch (error) {
         console.error('应用配置失败:', error);
-        const baseMsg = (typeof window !== 'undefined' && typeof window.t === 'function')
-            ? window.t('settings.apply.applyFailed')
-            : '应用配置失败';
-        alert(baseMsg + ': ' + error.message);
+        alert('应用配置失败: ' + error.message);
     }
 }
 
@@ -1066,7 +1024,7 @@ async function saveToolsConfig() {
             throw new Error(error.error || '应用配置失败');
         }
         
-        alert(typeof window.t === 'function' ? window.t('mcp.toolsConfigSaved') : '工具配置已成功保存！');
+        alert('工具配置已成功保存！');
         
         // 重新加载工具列表以反映最新状态
         if (typeof loadToolsList === 'function') {
@@ -1074,7 +1032,7 @@ async function saveToolsConfig() {
         }
     } catch (error) {
         console.error('保存工具配置失败:', error);
-        alert((typeof window.t === 'function' ? window.t('mcp.saveToolsConfigFailed') : '保存工具配置失败') + ': ' + error.message);
+        alert('保存工具配置失败: ' + error.message);
     }
 }
 
@@ -1121,7 +1079,7 @@ async function changePassword() {
     }
 
     if (hasError) {
-        alert(typeof window.t === 'function' ? window.t('settings.security.fillPasswordHint') : '请正确填写当前密码和新密码，新密码至少 8 位且需要两次输入一致。');
+        alert('请正确填写当前密码和新密码，新密码至少 8 位且需要两次输入一致。');
         return;
     }
 
@@ -1146,14 +1104,13 @@ async function changePassword() {
             throw new Error(result.error || '修改密码失败');
         }
 
-        const pwdMsg = typeof window.t === 'function' ? window.t('settings.security.passwordUpdated') : '密码已更新，请使用新密码重新登录。';
-        alert(pwdMsg);
+        alert('密码已更新，请使用新密码重新登录。');
         resetPasswordForm();
-        handleUnauthorized({ message: pwdMsg, silent: false });
+        handleUnauthorized({ message: '密码已更新，请使用新密码重新登录。', silent: false });
         closeSettings();
     } catch (error) {
         console.error('修改密码失败:', error);
-        alert((typeof window.t === 'function' ? window.t('settings.security.changePasswordFailed') : '修改密码失败') + ': ' + error.message);
+        alert('修改密码失败: ' + error.message);
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -1182,8 +1139,7 @@ async function loadExternalMCPs() {
         console.error('加载外部MCP列表失败:', error);
         const list = document.getElementById('external-mcp-list');
         if (list) {
-            const errT = typeof window.t === 'function' ? window.t : (k) => k;
-        list.innerHTML = `<div class="error">${escapeHtml(errT('mcp.loadExternalMCPFailed'))}: ${escapeHtml(error.message)}</div>`;
+            list.innerHTML = `<div class="error">加载失败: ${escapeHtml(error.message)}</div>`;
         }
     }
 }
@@ -1217,8 +1173,7 @@ function renderExternalMCPList(servers) {
     if (!list) return;
     
     if (Object.keys(servers).length === 0) {
-        const emptyT = typeof window.t === 'function' ? window.t : (k) => k;
-        list.innerHTML = '<div class="empty">📋 ' + emptyT('mcp.noExternalMCP') + '<br><span style="font-size: 0.875rem; margin-top: 8px; display: block;">' + emptyT('mcp.clickToAddExternal') + '</span></div>';
+        list.innerHTML = '<div class="empty">📋 暂无外部MCP配置<br><span style="font-size: 0.875rem; margin-top: 8px; display: block;">点击"添加外部MCP"按钮开始配置</span></div>';
         return;
     }
     
@@ -1229,11 +1184,10 @@ function renderExternalMCPList(servers) {
                            status === 'connecting' ? 'status-connecting' :
                            status === 'error' ? 'status-error' :
                            status === 'disabled' ? 'status-disabled' : 'status-disconnected';
-        const statusT = typeof window.t === 'function' ? window.t : (k) => k;
-        const statusText = status === 'connected' ? statusT('mcp.connected') : 
-                          status === 'connecting' ? statusT('mcp.connecting') :
-                          status === 'error' ? statusT('mcp.connectionFailed') :
-                          status === 'disabled' ? statusT('mcp.disabled') : statusT('mcp.disconnected');
+        const statusText = status === 'connected' ? '已连接' : 
+                          status === 'connecting' ? '连接中...' :
+                          status === 'error' ? '连接失败' :
+                          status === 'disabled' ? '已禁用' : '未连接';
         const transport = server.config.transport || (server.config.command ? 'stdio' : 'http');
         const transportIcon = transport === 'stdio' ? '⚙️' : '🌐';
         
@@ -1241,58 +1195,58 @@ function renderExternalMCPList(servers) {
             <div class="external-mcp-item">
                 <div class="external-mcp-item-header">
                     <div class="external-mcp-item-info">
-                        <h4>${transportIcon} ${escapeHtml(name)}${server.tool_count !== undefined && server.tool_count > 0 ? `<span class="tool-count-badge" title="${escapeHtml(statusT('mcp.toolCount'))}">🔧 ${server.tool_count}</span>` : ''}</h4>
+                        <h4>${transportIcon} ${escapeHtml(name)}${server.tool_count !== undefined && server.tool_count > 0 ? `<span class="tool-count-badge" title="工具数量">🔧 ${server.tool_count}</span>` : ''}</h4>
                         <span class="external-mcp-status ${statusClass}">${statusText}</span>
                     </div>
                     <div class="external-mcp-item-actions">
                         ${status === 'connected' || status === 'disconnected' || status === 'error' ? 
-                            `<button class="btn-small" id="btn-toggle-${escapeHtml(name)}" onclick="toggleExternalMCP('${escapeHtml(name)}', '${status}')" title="${status === 'connected' ? statusT('mcp.stopConnection') : statusT('mcp.startConnection')}">
-                                ${status === 'connected' ? '⏸ ' + statusT('mcp.stop') : '▶ ' + statusT('mcp.start')}
+                            `<button class="btn-small" id="btn-toggle-${escapeHtml(name)}" onclick="toggleExternalMCP('${escapeHtml(name)}', '${status}')" title="${status === 'connected' ? '停止连接' : '启动连接'}">
+                                ${status === 'connected' ? '⏸ 停止' : '▶ 启动'}
                             </button>` : 
                             status === 'connecting' ? 
                             `<button class="btn-small" id="btn-toggle-${escapeHtml(name)}" disabled style="opacity: 0.6; cursor: not-allowed;">
-                                ⏳ ${statusT('mcp.connecting')}
+                                ⏳ 连接中...
                             </button>` : ''}
-                        <button class="btn-small" onclick="editExternalMCP('${escapeHtml(name)}')" title="${statusT('mcp.editConfig')}" ${status === 'connecting' ? 'disabled' : ''}>✏️ ${statusT('common.edit')}</button>
-                        <button class="btn-small btn-danger" onclick="deleteExternalMCP('${escapeHtml(name)}')" title="${statusT('mcp.deleteConfig')}" ${status === 'connecting' ? 'disabled' : ''}>🗑 ${statusT('common.delete')}</button>
+                        <button class="btn-small" onclick="editExternalMCP('${escapeHtml(name)}')" title="编辑配置" ${status === 'connecting' ? 'disabled' : ''}>✏️ 编辑</button>
+                        <button class="btn-small btn-danger" onclick="deleteExternalMCP('${escapeHtml(name)}')" title="删除配置" ${status === 'connecting' ? 'disabled' : ''}>🗑 删除</button>
                     </div>
                 </div>
                 ${status === 'error' && server.error ? `
                 <div class="external-mcp-error" style="margin: 12px 0; padding: 12px; background: #fee; border-left: 3px solid #f44; border-radius: 4px; color: #c33; font-size: 0.875rem;">
-                    <strong>❌ ${statusT('mcp.connectionErrorLabel')}</strong>${escapeHtml(server.error)}
+                    <strong>❌ 连接错误：</strong>${escapeHtml(server.error)}
                 </div>` : ''}
                 <div class="external-mcp-item-details">
                     <div>
-                        <strong>${statusT('mcp.transportMode')}</strong>
+                        <strong>传输模式</strong>
                         <span>${transportIcon} ${escapeHtml(transport.toUpperCase())}</span>
                     </div>
                     ${server.tool_count !== undefined && server.tool_count > 0 ? `
                     <div>
-                        <strong>${statusT('mcp.toolCount')}</strong>
-                        <span style="font-weight: 600; color: var(--accent-color);">${statusT('mcp.toolsCountValue', { count: server.tool_count })}</span>
+                        <strong>工具数量</strong>
+                        <span style="font-weight: 600; color: var(--accent-color);">🔧 ${server.tool_count} 个工具</span>
                     </div>` : server.tool_count === 0 && status === 'connected' ? `
                     <div>
-                        <strong>${statusT('mcp.toolCount')}</strong>
-                        <span style="color: var(--text-muted);">${statusT('mcp.noTools')}</span>
+                        <strong>工具数量</strong>
+                        <span style="color: var(--text-muted);">暂无工具</span>
                     </div>` : ''}
                     ${server.config.description ? `
                     <div>
-                        <strong>${statusT('mcp.description')}</strong>
+                        <strong>描述</strong>
                         <span>${escapeHtml(server.config.description)}</span>
                     </div>` : ''}
                     ${server.config.timeout ? `
                     <div>
-                        <strong>${statusT('mcp.timeout')}</strong>
-                        <span>${server.config.timeout} ${statusT('mcp.secondsUnit')}</span>
+                        <strong>超时时间</strong>
+                        <span>${server.config.timeout} 秒</span>
                     </div>` : ''}
                     ${transport === 'stdio' && server.config.command ? `
                     <div>
-                        <strong>${statusT('mcp.command')}</strong>
+                        <strong>命令</strong>
                         <span style="font-family: monospace; font-size: 0.8125rem;">${escapeHtml(server.config.command)}</span>
                     </div>` : ''}
                     ${transport === 'http' && server.config.url ? `
                     <div>
-                        <strong>${statusT('mcp.urlLabel')}</strong>
+                        <strong>URL</strong>
                         <span style="font-family: monospace; font-size: 0.8125rem; word-break: break-all;">${escapeHtml(server.config.url)}</span>
                     </div>` : ''}
                 </div>
@@ -1313,19 +1267,18 @@ function renderExternalMCPStats(stats) {
     const disabled = stats.disabled || 0;
     const connected = stats.connected || 0;
     
-    const statsT = typeof window.t === 'function' ? window.t : (k) => k;
     statsEl.innerHTML = `
-        <span title="${statsT('mcp.totalCount')}">📊 ${statsT('mcp.totalCount')}: <strong>${total}</strong></span>
-        <span title="${statsT('mcp.enabledCount')}">✅ ${statsT('mcp.enabledCount')}: <strong>${enabled}</strong></span>
-        <span title="${statsT('mcp.disabledCount')}">⏸ ${statsT('mcp.disabledCount')}: <strong>${disabled}</strong></span>
-        <span title="${statsT('mcp.connectedCount')}">🔗 ${statsT('mcp.connectedCount')}: <strong>${connected}</strong></span>
+        <span title="总配置数">📊 总数: <strong>${total}</strong></span>
+        <span title="已启用的配置数">✅ 已启用: <strong>${enabled}</strong></span>
+        <span title="已停用的配置数">⏸ 已停用: <strong>${disabled}</strong></span>
+        <span title="当前已连接的配置数">🔗 已连接: <strong>${connected}</strong></span>
     `;
 }
 
 // 显示添加外部MCP模态框
 function showAddExternalMCPModal() {
     currentEditingMCPName = null;
-    document.getElementById('external-mcp-modal-title').textContent = (typeof window.t === 'function' ? window.t('mcp.addExternalMCP') : '添加外部MCP');
+    document.getElementById('external-mcp-modal-title').textContent = '添加外部MCP';
     document.getElementById('external-mcp-json').value = '';
     document.getElementById('external-mcp-json-error').style.display = 'none';
     document.getElementById('external-mcp-json-error').textContent = '';
@@ -1344,13 +1297,13 @@ async function editExternalMCP(name) {
     try {
         const response = await apiFetch(`/api/external-mcp/${encodeURIComponent(name)}`);
         if (!response.ok) {
-            throw new Error(typeof window.t === 'function' ? window.t('mcp.getConfigFailed') : '获取外部MCP配置失败');
+            throw new Error('获取外部MCP配置失败');
         }
         
         const server = await response.json();
         currentEditingMCPName = name;
         
-        document.getElementById('external-mcp-modal-title').textContent = (typeof window.t === 'function' ? window.t('mcp.editExternalMCP') : '编辑外部MCP');
+        document.getElementById('external-mcp-modal-title').textContent = '编辑外部MCP';
         
         // 将配置转换为对象格式（key为名称）
         const config = { ...server.config };
@@ -1372,7 +1325,7 @@ async function editExternalMCP(name) {
         document.getElementById('external-mcp-modal').style.display = 'block';
     } catch (error) {
         console.error('编辑外部MCP失败:', error);
-        alert((typeof window.t === 'function' ? window.t('mcp.operationFailed') : '编辑失败') + ': ' + error.message);
+        alert('编辑失败: ' + error.message);
     }
 }
 
@@ -1384,7 +1337,7 @@ function formatExternalMCPJSON() {
     try {
         const jsonStr = jsonTextarea.value.trim();
         if (!jsonStr) {
-            errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonEmpty') : 'JSON不能为空');
+            errorDiv.textContent = 'JSON不能为空';
             errorDiv.style.display = 'block';
             jsonTextarea.classList.add('error');
             return;
@@ -1396,7 +1349,7 @@ function formatExternalMCPJSON() {
         errorDiv.style.display = 'none';
         jsonTextarea.classList.remove('error');
     } catch (error) {
-        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonError') : 'JSON格式错误') + ': ' + error.message;
+        errorDiv.textContent = 'JSON格式错误: ' + error.message;
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
     }
@@ -1404,7 +1357,6 @@ function formatExternalMCPJSON() {
 
 // 加载示例
 function loadExternalMCPExample() {
-    const desc = (typeof window.t === 'function' ? window.t('externalMcpModal.exampleDescription') : '示例描述');
     const example = {
         "hexstrike-ai": {
             command: "python3",
@@ -1413,7 +1365,7 @@ function loadExternalMCPExample() {
                 "--server",
                 "http://example.com"
             ],
-            description: desc,
+            description: "示例描述",
             timeout: 300
         },
         "cyberstrike-ai-http": {
@@ -1438,7 +1390,7 @@ async function saveExternalMCP() {
     const errorDiv = document.getElementById('external-mcp-json-error');
     
     if (!jsonStr) {
-        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonEmpty') : 'JSON不能为空');
+        errorDiv.textContent = 'JSON配置不能为空';
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
         jsonTextarea.focus();
@@ -1449,17 +1401,16 @@ async function saveExternalMCP() {
     try {
         configObj = JSON.parse(jsonStr);
     } catch (error) {
-        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonError') : 'JSON格式错误') + ': ' + error.message;
+        errorDiv.textContent = 'JSON格式错误: ' + error.message;
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
         jsonTextarea.focus();
         return;
     }
     
-    const t = (typeof window.t === 'function' ? window.t : function (k, opts) { return k; });
     // 验证必须是对象格式
     if (typeof configObj !== 'object' || Array.isArray(configObj) || configObj === null) {
-        errorDiv.textContent = t('mcp.configMustBeObject');
+        errorDiv.textContent = '配置错误: 必须是JSON对象格式，key为配置名称，value为配置内容';
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
         return;
@@ -1468,7 +1419,7 @@ async function saveExternalMCP() {
     // 获取所有配置名称
     const names = Object.keys(configObj);
     if (names.length === 0) {
-        errorDiv.textContent = t('mcp.configNeedOne');
+        errorDiv.textContent = '配置错误: 至少需要一个配置项';
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
         return;
@@ -1477,7 +1428,7 @@ async function saveExternalMCP() {
     // 验证每个配置
     for (const name of names) {
         if (!name || name.trim() === '') {
-            errorDiv.textContent = t('mcp.configNameEmpty');
+            errorDiv.textContent = '配置错误: 配置名称不能为空';
             errorDiv.style.display = 'block';
             jsonTextarea.classList.add('error');
             return;
@@ -1485,7 +1436,7 @@ async function saveExternalMCP() {
         
         const config = configObj[name];
         if (typeof config !== 'object' || Array.isArray(config) || config === null) {
-            errorDiv.textContent = t('mcp.configMustBeObj', { name: name });
+            errorDiv.textContent = `配置错误: "${name}" 的配置必须是对象`;
             errorDiv.style.display = 'block';
             jsonTextarea.classList.add('error');
             return;
@@ -1497,28 +1448,28 @@ async function saveExternalMCP() {
         // 验证配置内容
         const transport = config.transport || (config.command ? 'stdio' : config.url ? 'http' : '');
         if (!transport) {
-            errorDiv.textContent = t('mcp.configNeedCommand', { name: name });
+            errorDiv.textContent = `配置错误: "${name}" 需要指定command（stdio模式）或url（http/sse模式）`;
             errorDiv.style.display = 'block';
             jsonTextarea.classList.add('error');
             return;
         }
         
         if (transport === 'stdio' && !config.command) {
-            errorDiv.textContent = t('mcp.configStdioNeedCommand', { name: name });
+            errorDiv.textContent = `配置错误: "${name}" stdio模式需要command字段`;
             errorDiv.style.display = 'block';
             jsonTextarea.classList.add('error');
             return;
         }
         
         if (transport === 'http' && !config.url) {
-            errorDiv.textContent = t('mcp.configHttpNeedUrl', { name: name });
+            errorDiv.textContent = `配置错误: "${name}" http模式需要url字段`;
             errorDiv.style.display = 'block';
             jsonTextarea.classList.add('error');
             return;
         }
         
         if (transport === 'sse' && !config.url) {
-            errorDiv.textContent = t('mcp.configSseNeedUrl', { name: name });
+            errorDiv.textContent = `配置错误: "${name}" sse模式需要url字段`;
             errorDiv.style.display = 'block';
             jsonTextarea.classList.add('error');
             return;
@@ -1533,7 +1484,7 @@ async function saveExternalMCP() {
         // 如果是编辑模式，只更新当前编辑的配置
         if (currentEditingMCPName) {
             if (!configObj[currentEditingMCPName]) {
-                errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.configEditMustContainName', { name: currentEditingMCPName }) : '配置错误: 编辑模式下，JSON必须包含配置名称 "' + currentEditingMCPName + '"');
+                errorDiv.textContent = `配置错误: 编辑模式下，JSON必须包含配置名称 "${currentEditingMCPName}"`;
                 errorDiv.style.display = 'block';
                 jsonTextarea.classList.add('error');
                 return;
@@ -1577,10 +1528,10 @@ async function saveExternalMCP() {
         }
         // 轮询几次以拉取后端异步更新的工具数量（无固定延迟，拿到即停）
         pollExternalMCPToolCount(null, 5);
-        alert(typeof window.t === 'function' ? window.t('mcp.saveSuccess') : '保存成功');
+        alert('保存成功');
     } catch (error) {
         console.error('保存外部MCP失败:', error);
-        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.operationFailed') : '保存失败') + ': ' + error.message;
+        errorDiv.textContent = '保存失败: ' + error.message;
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
     }
@@ -1588,7 +1539,7 @@ async function saveExternalMCP() {
 
 // 删除外部MCP
 async function deleteExternalMCP(name) {
-    if (!confirm((typeof window.t === 'function' ? window.t('mcp.deleteExternalConfirm', { name: name }) : `确定要删除外部MCP "${name}" 吗？`))) {
+    if (!confirm(`确定要删除外部MCP "${name}" 吗？`)) {
         return;
     }
     
@@ -1607,10 +1558,10 @@ async function deleteExternalMCP(name) {
         if (typeof window !== 'undefined' && typeof window.refreshMentionTools === 'function') {
             window.refreshMentionTools();
         }
-        alert(typeof window.t === 'function' ? window.t('mcp.deleteSuccess') : '删除成功');
+        alert('删除成功');
     } catch (error) {
         console.error('删除外部MCP失败:', error);
-        alert((typeof window.t === 'function' ? window.t('mcp.operationFailed') : '删除失败') + ': ' + error.message);
+        alert('删除失败: ' + error.message);
     }
 }
 
@@ -1675,7 +1626,7 @@ async function toggleExternalMCP(name, currentStatus) {
         }
     } catch (error) {
         console.error('切换外部MCP状态失败:', error);
-        alert((typeof window.t === 'function' ? window.t('mcp.operationFailed') : '操作失败') + ': ' + error.message);
+        alert('操作失败: ' + error.message);
         
         // 恢复按钮状态
         if (button) {
@@ -1728,7 +1679,7 @@ async function pollExternalMCPStatus(name, maxAttempts = 30) {
                         window.refreshMentionTools();
                     }
                     if (status === 'error') {
-                        alert(typeof window.t === 'function' ? window.t('mcp.connectionFailedCheck') : '连接失败，请检查配置和网络连接');
+                        alert('连接失败，请检查配置和网络连接');
                     }
                     return;
                 } else if (status === 'connecting') {
@@ -1750,7 +1701,7 @@ async function pollExternalMCPStatus(name, maxAttempts = 30) {
     if (typeof window !== 'undefined' && typeof window.refreshMentionTools === 'function') {
         window.refreshMentionTools();
     }
-    alert(typeof window.t === 'function' ? window.t('mcp.connectionTimeout') : '连接超时，请检查配置和网络连接');
+    alert('连接超时，请检查配置和网络连接');
 }
 
 // 在打开设置时加载外部MCP列表
@@ -1759,20 +1710,3 @@ openSettings = async function() {
     await originalOpenSettings();
     await loadExternalMCPs();
 };
-
-// 语言切换后重新渲染 MCP 管理页中由 JS 写入的区块（innerHTML 不会随 data-i18n 自动更新）
-document.addEventListener('languagechange', function () {
-    try {
-        const mcpPage = document.getElementById('page-mcp-management');
-        if (mcpPage && mcpPage.classList.contains('active')) {
-            if (typeof loadExternalMCPs === 'function') {
-                loadExternalMCPs().catch(function () { /* ignore */ });
-            }
-            if (typeof updateToolsStats === 'function') {
-                updateToolsStats().catch(function () { /* ignore */ });
-            }
-        }
-    } catch (e) {
-        console.warn('languagechange MCP refresh failed', e);
-    }
-});
