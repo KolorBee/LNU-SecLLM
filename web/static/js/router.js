@@ -8,7 +8,7 @@ function initRouter() {
     if (hash) {
         const hashParts = hash.split('?');
         const pageId = hashParts[0];
-        if (pageId && ['dashboard', 'chat', 'info-collect', 'vulnerabilities', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'extensions-market', 'plugin-management', 'settings', 'tasks'].includes(pageId)) {
+        if (pageId && ['dashboard', 'chat', 'info-collect', 'vulnerabilities', 'webshell', 'chat-files', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'agents-management', 'settings', 'tasks'].includes(pageId)) {
             switchPage(pageId);
             
             // 如果是chat页面且带有conversation参数，加载对应对话
@@ -73,13 +73,13 @@ function switchPage(pageId) {
         
         // 更新URL hash
         window.location.hash = pageId;
-        
+           
         // 更新顶栏页面标题
         const titleEl = document.getElementById('header-page-title');
         if (titleEl && PAGE_TITLES[pageId]) {
             titleEl.textContent = PAGE_TITLES[pageId];
         }
-        
+
         // 更新导航状态
         updateNavState(pageId);
         
@@ -139,6 +139,16 @@ function updateNavState(pageId) {
         if (submenuItem) {
             submenuItem.classList.add('active');
         }
+    } else if (pageId === 'agents-management') {
+        const agentsItem = document.querySelector('.nav-item[data-page="agents"]');
+        if (agentsItem) {
+            agentsItem.classList.add('active');
+            agentsItem.classList.add('expanded');
+        }
+        const submenuItem = document.querySelector(`.nav-submenu-item[data-page="${pageId}"]`);
+        if (submenuItem) {
+            submenuItem.classList.add('active');
+        }
     } else if (pageId === 'roles-management') {
         // 角色子菜单项
         const rolesItem = document.querySelector('.nav-item[data-page="roles"]');
@@ -152,7 +162,7 @@ function updateNavState(pageId) {
         if (submenuItem) {
             submenuItem.classList.add('active');
         }
-    } else if (pageId === 'extensions-market' || pageId === 'plugin-management') {
+            } else if (pageId === 'extensions-market' || pageId === 'plugin-management') {
         // 扩展模块子菜单项
         const extensionsItem = document.querySelector('.nav-item[data-page="extensions"]');
         if (extensionsItem) {
@@ -284,7 +294,8 @@ function initPage(pageId) {
             }
             break;
         case 'chat':
-            // 对话页面已由chat.js初始化
+            // 恢复对话列表折叠状态（从其他页返回时保持用户选择）
+            initConversationSidebarState();
             break;
         case 'info-collect':
             // 信息收集页面
@@ -331,6 +342,17 @@ function initPage(pageId) {
             // 初始化漏洞管理页面
             if (typeof initVulnerabilityPage === 'function') {
                 initVulnerabilityPage();
+            }
+            break;
+        case 'webshell':
+            // 初始化 WebShell 管理页面
+            if (typeof initWebshellPage === 'function') {
+                initWebshellPage();
+            }
+            break;
+        case 'chat-files':
+            if (typeof initChatFilesPage === 'function') {
+                initChatFilesPage();
             }
             break;
         case 'settings':
@@ -382,6 +404,11 @@ function initPage(pageId) {
                 loadSkills();
             }
             break;
+        case 'agents-management':
+            if (typeof loadMarkdownAgents === 'function') {
+                loadMarkdownAgents();
+            }
+            break;
     }
     
     // 清理其他页面的定时器
@@ -402,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const hashParts = hash.split('?');
         const pageId = hashParts[0];
         
-        if (pageId && ['chat', 'info-collect', 'tasks', 'vulnerabilities', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'settings'].includes(pageId)) {
+        if (pageId && ['chat', 'info-collect', 'tasks', 'vulnerabilities', 'webshell', 'chat-files', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'agents-management', 'settings'].includes(pageId)) {
             switchPage(pageId);
             
             // 如果是chat页面且带有conversation参数，加载对应对话
@@ -462,11 +489,36 @@ function initSidebarState() {
             sidebar.classList.add('collapsed');
         }
     }
+    initConversationSidebarState();
+}
+
+// 切换对话页左侧列表折叠/展开
+function toggleConversationSidebar() {
+    const sidebar = document.getElementById('conversation-sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('collapsed');
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('conversationSidebarCollapsed', isCollapsed ? 'true' : 'false');
+    }
+}
+
+// 恢复对话列表折叠状态（进入对话页时生效）
+function initConversationSidebarState() {
+    const sidebar = document.getElementById('conversation-sidebar');
+    if (sidebar) {
+        const savedState = localStorage.getItem('conversationSidebarCollapsed');
+        if (savedState === 'true') {
+            sidebar.classList.add('collapsed');
+        } else {
+            sidebar.classList.remove('collapsed');
+        }
+    }
 }
 
 // 导出函数供其他脚本使用
 window.switchPage = switchPage;
 window.toggleSubmenu = toggleSubmenu;
 window.toggleSidebar = toggleSidebar;
+window.toggleConversationSidebar = toggleConversationSidebar;
 window.currentPage = function() { return currentPage; };
 
