@@ -23,27 +23,6 @@ parameters:
     required: true
     flag: "-u"
     format: "flag"
-  - name: "introspection"
-    type: "bool"
-    description: "测试自省查询"
-    required: false
-    default: true
-    flag: "--introspection"
-    format: "flag"
-  - name: "query_depth"
-    type: "int"
-    description: "要测试的最大查询深度"
-    required: false
-    default: 10
-    flag: "--depth"
-    format: "flag"
-  - name: "test_mutations"
-    type: "bool"
-    description: "测试突变操作"
-    required: false
-    default: true
-    flag: "--mutations"
-    format: "flag"
   - name: "additional_args"
     type: "string"
     description: |

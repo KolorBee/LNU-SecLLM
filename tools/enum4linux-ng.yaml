@@ -5,13 +5,13 @@ short_description: "高级SMB枚举工具（Enum4linux的下一代版本）"
 description: |
   Enum4linux-ng是Enum4linux的下一代版本，提供更强大的SMB枚举功能。
 
-  **主要功能：**
+  **主要功能**
   - SMB共享枚举
   - 用户和组枚举
   - 策略枚举
   - 系统信息收集
 
-  **使用场景：**
+  **使用场景**
   - Windows系统渗透测试
   - SMB安全评估
   - 域环境侦察

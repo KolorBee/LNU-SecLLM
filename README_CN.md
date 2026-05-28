@@ -558,6 +558,7 @@ enabled: true
 
 ## 相关文档
 
+- [本地大模型替换指南](docs/local-llm.md)：将项目当前使用的 OpenAI 兼容 API 替换为本地模型服务，包含配置示例、知识库嵌入说明和常见问题排查。
 - [多代理模式（Eino）](docs/MULTI_AGENT_EINO.md)：DeepAgent 编排、`agents/*.md`、接口与流式说明。
 - [机器人使用说明（钉钉 / 飞书）](docs/robot.md)：在手机端通过钉钉、飞书与 CyberStrikeAI 对话的完整配置步骤、命令与排查说明，**建议按该文档操作以避免走弯路**。
 
@@ -572,7 +573,7 @@ CyberStrikeAI/
 ├── roles/               # 角色配置文件目录（含 12+ 预设安全测试角色）
 ├── skills/              # Skills 目录（含 20+ 预设安全测试技能）
 ├── agents/              # 多代理 Markdown（orchestrator.md + 子代理 *.md）
-├── docs/                # 说明文档（如机器人使用说明、MULTI_AGENT_EINO.md）
+├── docs/                # 说明文档（如本地大模型替换、机器人使用说明、MULTI_AGENT_EINO.md）
 ├── images/              # 文档配图
 ├── config.yaml          # 运行配置
 ├── run.sh               # 启动脚本

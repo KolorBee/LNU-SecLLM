@@ -5,13 +5,13 @@ short_description: "CTF二进制漏洞利用设置工具"
 description: |
   Pwninit是一个用于CTF二进制漏洞利用设置的工具，自动配置libc和loader。
 
-  **主要功能：**
+  **主要功能**
   - 自动libc识别
   - Loader配置
   - 模板生成
   - 环境设置
 
-  **使用场景：**
+  **使用场景**
   - CTF挑战
   - 漏洞利用开发
   - 环境配置

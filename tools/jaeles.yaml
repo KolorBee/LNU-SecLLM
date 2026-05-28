@@ -27,9 +27,10 @@ parameters:
   - name: "signatures"
     type: "string"
     description: "自定义签名路径"
-    required: false
+    required: true
     flag: "-s"
     format: "flag"
+    default: "/home/usser/.jaeles/base-signatures"
   - name: "config"
     type: "string"
     description: "配置文件"

@@ -2,7 +2,7 @@
   <img src="web/static/logo.png" alt="CyberStrikeAI Logo" width="200">
 </div>
 
-# CyberStrikeAI
+# LNU-SecLLM
 
 
 [中文](README_CN.md) | [English](README.md)
@@ -645,3 +645,4 @@ CyberStrikeAI is a professional security testing platform designed to assist sec
 Need help or want to contribute? Open an issue or PR—community tooling additions are welcome!
 
 
+doc

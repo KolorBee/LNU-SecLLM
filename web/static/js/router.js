@@ -36,6 +36,28 @@ function initRouter() {
     switchPage('dashboard');
 }
 
+// 页面标题映射
+const PAGE_TITLES = {
+    'dashboard': '安全态势仪表盘',
+    'chat': 'AI 对话',
+    'info-collect': '信息收集',
+    'tasks': '任务管理',
+    'vulnerabilities': '漏洞管理',
+    'webshell': 'WebShell 管理',
+    'chat-files': '文件管理',
+    'mcp-monitor': 'MCP 状态监控',
+    'mcp-management': 'MCP 管理',
+    'knowledge-retrieval-logs': '检索历史',
+    'knowledge-management': '知识管理',
+    'skills-monitor': 'Skills 状态监控',
+    'skills-management': 'Skills 管理',
+    'agents-management': 'Agent 管理',
+    'roles-management': '角色管理',
+    'extensions-market': '扩展市场',
+    'plugin-management': '插件管理',
+    'settings': '系统设置',
+};
+
 // 切换页面
 function switchPage(pageId) {
     // 隐藏所有页面
@@ -51,7 +73,13 @@ function switchPage(pageId) {
         
         // 更新URL hash
         window.location.hash = pageId;
-        
+           
+        // 更新顶栏页面标题
+        const titleEl = document.getElementById('header-page-title');
+        if (titleEl && PAGE_TITLES[pageId]) {
+            titleEl.textContent = PAGE_TITLES[pageId];
+        }
+
         // 更新导航状态
         updateNavState(pageId);
         
@@ -128,6 +156,32 @@ function updateNavState(pageId) {
             rolesItem.classList.add('active');
             // 展开角色子菜单
             rolesItem.classList.add('expanded');
+        }
+        
+        const submenuItem = document.querySelector(`.nav-submenu-item[data-page="${pageId}"]`);
+        if (submenuItem) {
+            submenuItem.classList.add('active');
+        }
+            } else if (pageId === 'extensions-market' || pageId === 'plugin-management') {
+        // 扩展模块子菜单项
+        const extensionsItem = document.querySelector('.nav-item[data-page="extensions"]');
+        if (extensionsItem) {
+            extensionsItem.classList.add('active');
+            // 展开扩展模块子菜单
+            extensionsItem.classList.add('expanded');
+        }
+        
+        const submenuItem = document.querySelector(`.nav-submenu-item[data-page="${pageId}"]`);
+        if (submenuItem) {
+            submenuItem.classList.add('active');
+        }
+    } else if (pageId === 'skills-monitor' || pageId === 'skills-management') {
+        // Skills子菜单项
+        const skillsItem = document.querySelector('.nav-item[data-page="skills"]');
+        if (skillsItem) {
+            skillsItem.classList.add('active');
+            // 展开Skills子菜单
+            skillsItem.classList.add('expanded');
         }
         
         const submenuItem = document.querySelector(`.nav-submenu-item[data-page="${pageId}"]`);
