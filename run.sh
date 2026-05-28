@@ -291,7 +291,9 @@ build_go_project() {
     (
         set +e  # 在子shell中禁用错误退出
         export GOPROXY="$GOPROXY"
-        go build -o "$BINARY_NAME" cmd/server/main.go >"$GO_BUILD_LOG" 2>&1
+        # -ldflags=-checklinkname=0: 兼容 Go 1.23+ 链接器对 //go:linkname 的限制
+        # (sonic/loader 引用了 runtime.lastmoduledatap)
+        go build -ldflags="-checklinkname=0" -o "$BINARY_NAME" cmd/server/main.go >"$GO_BUILD_LOG" 2>&1
         echo $? > "${GO_BUILD_LOG}.exit"
     ) &
     GO_BUILD_PID=$!
