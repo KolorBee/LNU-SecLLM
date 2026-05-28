@@ -18,3 +18,4 @@ parameters:
       额外的 Spectral 参数，例如 `--ruleset`, `--format`, `--fail-severity` 等。
     required: false
     format: "positional"
+    default: "--ruleset spectral:oas --format json"

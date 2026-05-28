@@ -1,20 +1,17 @@
 name: "dalfox"
 command: "dalfox"
-# dalfox v2+ 使用子命令，单目标模式为 `dalfox url <target>`，不再支持根级的 -u
-args:
-  - "url"
 enabled: true
 short_description: "高级XSS漏洞扫描器"
 description: |
   Dalfox是一个高级XSS漏洞扫描器，支持多种XSS检测技术。
 
-  **主要功能：**
+  **主要功能**
   - XSS漏洞检测
   - 盲XSS测试
   - DOM挖掘
   - 字典挖掘
 
-  **使用场景：**
+  **使用场景**
   - XSS漏洞测试
   - Web应用安全测试
   - Bug bounty侦察
@@ -22,12 +19,10 @@ description: |
 parameters:
   - name: "url"
     type: "string"
-    description: |
-      目标URL。dalfox 单目标模式为子命令 url，此处作为 url 后的第一个位置参数传入。
-      示例等价 CLI：dalfox url "http://target/page?q=test"
+    description: "目标URL"
     required: true
-    position: 0
-    format: "positional"
+    flag: "-u"
+    format: "flag"
   - name: "pipe_mode"
     type: "bool"
     description: "使用管道模式输入"
