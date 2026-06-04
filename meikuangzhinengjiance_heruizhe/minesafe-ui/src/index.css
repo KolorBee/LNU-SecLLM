@@ -1,0 +1,45 @@
+/* Import our fonts from Google */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
+
+/* CSS Variables — our color palette lives here.
+   Change one variable = changes the whole site */
+:root {
+  --black: #050608;
+  --surface: #0d0f14;
+  --surface2: #13161e;
+  --border: rgba(255,255,255,0.07);
+  --text: #e8eaf0;
+  --muted: #5a5f72;
+  --accent: #f4a233;
+  --accent2: #3be8b0;
+  --danger: #ff4d4d;
+  --safe: #3be8b0;
+  --blue: #4d9fff;
+}
+
+/* Reset — removes all default browser styling */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base body styles */
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Smooth scrolling when clicking nav links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar so it matches our dark theme */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--black); }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 100px; }
