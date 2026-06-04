@@ -108,3 +108,8 @@ pycoal/tests/images/ang20150420t182808_corr_v1e_img_class_4200-4210_70-80_filter
 # Web viewer artifacts
 web/runs/
 web/__pycache__/
+
+local-tool-installation
+.codex
+targets/
+test/
