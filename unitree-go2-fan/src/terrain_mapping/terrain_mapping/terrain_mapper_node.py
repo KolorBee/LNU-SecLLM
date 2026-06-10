@@ -193,7 +193,7 @@ class TerrainMapper(Node):
             reliability=ReliabilityPolicy.RELIABLE,
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
-        cloud_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
+        cloud_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE)
         marker_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE)
 
         self.elevation_map_pub = self.create_publisher(
@@ -364,6 +364,8 @@ class TerrainMapper(Node):
             base_points,
             base_origin,
             base_from_target,
+            used_sources,
+            source_point_counts,
         )
         if result is None:
             self.skipped_empty += 1
@@ -440,7 +442,15 @@ class TerrainMapper(Node):
         keep.sort()
         return target_points[keep], base_points[keep]
 
-    def build_terrain_products(self, target_points, base_points, base_origin, base_from_target):
+    def build_terrain_products(
+        self,
+        target_points,
+        base_points,
+        base_origin,
+        base_from_target,
+        used_sources,
+        source_point_counts,
+    ):
         extent = max(
             self.local_map_radius,
             self.local_map_forward,
