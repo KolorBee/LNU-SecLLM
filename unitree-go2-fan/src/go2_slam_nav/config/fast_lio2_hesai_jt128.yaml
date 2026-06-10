@@ -1,0 +1,66 @@
+/**:
+  ros__parameters:
+    common:
+      map_frame: lio_map
+      lidar_frame: hesai_lidar
+      imu_frame: hesai_lidar
+      base_frame: base_link
+      visualization_frame: base
+      time_sync_en: false
+      save_dir: /home/star/go2_maps/fast_lio2
+      sequence_name: go2_hesai_jt128
+
+    preprocess:
+      # Native Hesai PointCloud2: x/y/z/intensity/ring/timestamp.
+      lidar_type: 5
+      scan_line: 128
+      scan_rate: 10
+      timestamp_unit: 0
+      blind: 0.2
+      blind_for_human_pilots: 1.5
+
+    mapping:
+      acc_cov: 0.1
+      gyr_cov: 0.1
+      b_acc_cov: 0.003
+      b_gyr_cov: 0.001
+      fov_degree: 360.0
+      det_range: 80.0
+      extrinsic_est_en: false
+      # The JT128 point cloud and internal IMU both publish in hesai_lidar.
+      # Their internal LiDAR-to-IMU transform is therefore identity. The
+      # separate base_link -> hesai_lidar static TF carries the measured
+      # mounting height and the observed clockwise mounting yaw.
+      extrinsic_T: [0.0, 0.0, 0.0]
+      extrinsic_R: [1.0, 0.0, 0.0,
+                    0.0, 1.0, 0.0,
+                    0.0, 0.0, 1.0]
+
+    gravity_alignment:
+      enable_gravity_alignment: false
+      acc_diff_thr: 0.2
+      num_moving_frames_thr: 20
+      num_gravity_measurements_thr: 20
+      g_base: [0.0, 0.0, -1.0]
+
+    filter_size_map: 0.3
+    cube_side_length: 200.0
+    max_iteration: 4
+    point_filter_num_for_preprocessing: 1
+    point_filter_num: 2
+    verbose: false
+    pcl_verbose: false
+    runtime_pos_log_enable: false
+    extrinsics_timeout_s: 10.0
+
+    publish:
+      path_en: true
+      scan_publish_en: true
+      dense_publish_en: false
+      scan_lidarframe_pub_en: false
+      scan_bodyframe_pub_en: false
+      scan_baseframe_pub_en: true
+
+    pcd_save:
+      pcd_save_en: false
+      interval: -1

@@ -1,0 +1,62 @@
+terrain_mapper:
+  ros__parameters:
+    target_frame: "map"
+    base_frame: "base_link"
+
+    use_fastlio_cloud: true
+    fastlio_cloud_topic: "/lio_cloud_registered"
+
+    use_map_cloud: true
+    map_cloud_topic: "/lio_cloud_map"
+
+    use_d435i_cloud: true
+    d435i_cloud_topic: "/camera/depth/color/points"
+    d435i_cloud_topic_alt: "/camera/camera/depth/color/points"
+
+    local_map_radius: 5.0
+    local_map_forward: 5.0
+    local_map_backward: 1.0
+    grid_resolution: 0.05
+
+    min_z: -0.40
+    max_z: 1.50
+
+    ground_height_min: -0.18
+    obstacle_height_min: 0.06
+    obstacle_height_max: 1.20
+
+    max_slope_deg: 12.0
+    max_step_height: 0.08
+    max_roughness: 0.04
+
+    voxel_leaf_size: 0.05
+
+    publish_rate: 4.0
+    debug_publish_rate: 2.0
+
+    robot_width: 0.38
+    safety_margin: 0.22
+
+    min_points_per_cell: 1
+    max_points_per_cloud: 250000
+    max_grid_cells: 250000
+    tf_timeout: 0.08
+    source_timeout: 3.0
+
+    publish_nav2_costmap: true
+    inflate_traversability_grid: false
+
+    elevation_map_topic: "/elevation_map"
+    elevation_cloud_topic: "/elevation_cloud_debug"
+    traversability_grid_topic: "/traversability_grid"
+    stair_edges_marker_topic: "/stair_edges_marker"
+    terrain_debug_markers_topic: "/terrain_debug_markers"
+    terrain_obstacle_cloud_topic: "/terrain_obstacle_cloud"
+    nav2_terrain_costmap_topic: "/nav2_terrain_costmap"
+
+    stair_min_step_height: 0.06
+    stair_max_step_height: 0.20
+    stair_min_edges: 8
+    stair_front_min: 0.20
+    stair_front_max: 4.0
+    stair_lateral_half_width: 1.2
