@@ -335,6 +335,7 @@ func New(cfg *config.Config, log *logger.Logger) (*App, error) {
 	authHandler := handler.NewAuthHandler(authManager, cfg, configPath, log.Logger)
 	attackChainHandler := handler.NewAttackChainHandler(db, &cfg.OpenAI, log.Logger)
 	vulnerabilityHandler := handler.NewVulnerabilityHandler(db, log.Logger)
+	reportHandler := handler.NewReportHandler(db, log.Logger)
 	webshellHandler := handler.NewWebShellHandler(log.Logger, db)
 	chatUploadsHandler := handler.NewChatUploadsHandler(log.Logger)
 	registerWebshellTools(mcpServer, db, webshellHandler, log.Logger)
@@ -457,6 +458,7 @@ func New(cfg *config.Config, log *logger.Logger) (*App, error) {
 		attackChainHandler,
 		app, // 传递 App 实例以便动态获取 knowledgeHandler
 		vulnerabilityHandler,
+		reportHandler,
 		webshellHandler,
 		chatUploadsHandler,
 		roleHandler,
@@ -587,6 +589,7 @@ func setupRoutes(
 	attackChainHandler *handler.AttackChainHandler,
 	app *App, // 传递 App 实例以便动态获取 knowledgeHandler
 	vulnerabilityHandler *handler.VulnerabilityHandler,
+	reportHandler *handler.ReportHandler,
 	webshellHandler *handler.WebShellHandler,
 	chatUploadsHandler *handler.ChatUploadsHandler,
 	roleHandler *handler.RoleHandler,
@@ -861,6 +864,13 @@ func setupRoutes(
 		protected.POST("/vulnerabilities", vulnerabilityHandler.CreateVulnerability)
 		protected.PUT("/vulnerabilities/:id", vulnerabilityHandler.UpdateVulnerability)
 		protected.DELETE("/vulnerabilities/:id", vulnerabilityHandler.DeleteVulnerability)
+
+		// 自动化安全报告
+		protected.GET("/reports", reportHandler.List)
+		protected.POST("/reports", reportHandler.Create)
+		protected.GET("/reports/:id", reportHandler.Get)
+		protected.GET("/reports/:id/markdown", reportHandler.DownloadMarkdown)
+		protected.DELETE("/reports/:id", reportHandler.Delete)
 
 		// WebShell 管理（代理执行 + 连接配置存 SQLite）
 		protected.GET("/webshell/connections", webshellHandler.ListConnections)

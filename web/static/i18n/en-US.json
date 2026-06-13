@@ -23,7 +23,7 @@
     "actions": "Actions"
   },
   "header": {
-    "title": "CyberStrikeAI",
+    "title": "LNU-SecLM",
     "apiDocs": "API Docs",
     "github": "GitHub",
     "logout": "Sign out",
@@ -34,7 +34,7 @@
     "toggleSidebar": "Collapse/expand sidebar"
   },
   "login": {
-    "title": "Sign in to CyberStrikeAI",
+    "title": "Sign in to LNU-SecLM",
     "subtitle": "Enter the access password from config",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Enter password",
@@ -46,8 +46,12 @@
     "infoCollect": "Recon",
     "tasks": "Tasks",
     "vulnerabilities": "Vulnerabilities",
+    "reports": "Security Reports",
     "webshell": "WebShell Management",
     "chatFiles": "File Management",
+    "extensions": "Extensions",
+    "extensionsMarket": "Extension Marketplace",
+    "pluginManagement": "Plugin Management",
     "mcp": "MCP",
     "mcpMonitor": "MCP Monitor",
     "mcpManagement": "MCP Management",
@@ -62,6 +66,22 @@
     "roles": "Roles",
     "rolesManagement": "Roles Management",
     "settings": "System settings"
+  },
+  "reports": {
+    "title": "Security Reports",
+    "subtitle": "Aggregate vulnerabilities, attack chains, and tool executions into deliverable reports",
+    "createTitle": "Generate Report",
+    "createHint": "Leave the conversation ID empty to include all platform security data.",
+    "reportName": "Report name",
+    "reportNamePlaceholder": "Auto-generate or enter a custom name",
+    "conversationId": "Conversation ID (optional)",
+    "conversationPlaceholder": "Generate a report for one conversation",
+    "generate": "Generate",
+    "totalReports": "Total reports",
+    "criticalFindings": "Critical findings",
+    "highFindings": "High findings",
+    "toolExecutions": "Tool executions",
+    "history": "Report history"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1524,8 +1544,8 @@
     "add": "Add"
   },
   "vulnerabilityModal": {
-    "conversationId": "Conversation ID",
-    "conversationIdPlaceholder": "Enter conversation ID",
+    "conversationId": "Conversation ID (optional)",
+    "conversationIdPlaceholder": "Leave empty to file under manual vulnerabilities",
     "title": "Title",
     "titlePlaceholder": "Vulnerability title",
     "description": "Description",

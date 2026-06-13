@@ -23,7 +23,7 @@
     "actions": "操作"
   },
   "header": {
-    "title": "CyberStrikeAI",
+    "title": "LNU-SecLM",
     "apiDocs": "API 文档",
     "github": "GitHub",
     "logout": "退出登录",
@@ -34,7 +34,7 @@
     "toggleSidebar": "折叠/展开侧边栏"
   },
   "login": {
-    "title": "登录 CyberStrikeAI",
+    "title": "登录 LNU-SecLM",
     "subtitle": "请输入配置中的访问密码",
     "passwordLabel": "密码",
     "passwordPlaceholder": "输入登录密码",
@@ -46,8 +46,12 @@
     "infoCollect": "信息收集",
     "tasks": "任务管理",
     "vulnerabilities": "漏洞管理",
+    "reports": "安全报告",
     "webshell": "WebShell管理",
     "chatFiles": "文件管理",
+    "extensions": "扩展模块",
+    "extensionsMarket": "扩展市场",
+    "pluginManagement": "插件管理",
     "mcp": "MCP",
     "mcpMonitor": "MCP状态监控",
     "mcpManagement": "MCP管理",
@@ -62,6 +66,22 @@
     "roles": "角色",
     "rolesManagement": "角色管理",
     "settings": "系统设置"
+  },
+  "reports": {
+    "title": "安全报告",
+    "subtitle": "聚合漏洞、攻击链和工具执行记录，生成可交付的测试报告",
+    "createTitle": "生成新报告",
+    "createHint": "会话 ID 留空时，将聚合平台内全部安全测试数据。",
+    "reportName": "报告名称",
+    "reportNamePlaceholder": "自动生成或输入自定义名称",
+    "conversationId": "会话 ID（可选）",
+    "conversationPlaceholder": "只生成指定会话的报告",
+    "generate": "生成报告",
+    "totalReports": "报告总数",
+    "criticalFindings": "严重漏洞",
+    "highFindings": "高危漏洞",
+    "toolExecutions": "工具执行记录",
+    "history": "报告历史"
   },
   "dashboard": {
     "title": "仪表盘",
@@ -1524,8 +1544,8 @@
     "add": "添加"
   },
   "vulnerabilityModal": {
-    "conversationId": "会话ID",
-    "conversationIdPlaceholder": "输入会话ID",
+    "conversationId": "会话ID（可选）",
+    "conversationIdPlaceholder": "留空将自动归入手动录入漏洞",
     "title": "标题",
     "titlePlaceholder": "漏洞标题",
     "description": "描述",
