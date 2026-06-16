@@ -67,9 +67,10 @@
             const isFormControl = (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA');
             const attrList = el.getAttribute('data-i18n-attr');
             const text = i18next.t(key);
+            const hasTranslation = text && typeof text === 'string' && text !== key;
             // 仅当元素无子元素（仅文本或空）时才替换文本，避免覆盖卡片内的数字、子节点等；input/textarea 永不设置 textContent
             const hasNoElementChildren = !el.querySelector('*');
-            if (!skipText && !isFormControl && hasNoElementChildren && text && typeof text === 'string') {
+            if (!skipText && !isFormControl && hasNoElementChildren && hasTranslation) {
                 el.textContent = text;
             }
 
@@ -82,7 +83,7 @@
                         var titleText = i18next.t(titleKey);
                         if (titleText && typeof titleText === 'string') val = titleText;
                     }
-                    if (val && typeof val === 'string') {
+                    if (val && typeof val === 'string' && val !== key) {
                         el.setAttribute(attr, val);
                     }
                 });
@@ -227,4 +228,3 @@
         });
     });
 })();
-

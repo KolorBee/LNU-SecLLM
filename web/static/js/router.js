@@ -8,7 +8,7 @@ function initRouter() {
     if (hash) {
         const hashParts = hash.split('?');
         const pageId = hashParts[0];
-        if (pageId && ['dashboard', 'chat', 'info-collect', 'vulnerabilities', 'webshell', 'chat-files', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'agents-management', 'settings', 'tasks'].includes(pageId)) {
+        if (pageId && ['dashboard', 'chat', 'info-collect', 'vulnerabilities', 'reports', 'webshell', 'chat-files', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'agents-management', 'settings', 'tasks'].includes(pageId)) {
             switchPage(pageId);
             
             // 如果是chat页面且带有conversation参数，加载对应对话
@@ -43,6 +43,7 @@ const PAGE_TITLES = {
     'info-collect': '信息收集',
     'tasks': '任务管理',
     'vulnerabilities': '漏洞管理',
+    'reports': '安全报告',
     'webshell': 'WebShell 管理',
     'chat-files': '文件管理',
     'mcp-monitor': 'MCP 状态监控',
@@ -344,6 +345,11 @@ function initPage(pageId) {
                 initVulnerabilityPage();
             }
             break;
+        case 'reports':
+            if (typeof initReportsPage === 'function') {
+                initReportsPage();
+            }
+            break;
         case 'webshell':
             // 初始化 WebShell 管理页面
             if (typeof initWebshellPage === 'function') {
@@ -521,4 +527,3 @@ window.toggleSubmenu = toggleSubmenu;
 window.toggleSidebar = toggleSidebar;
 window.toggleConversationSidebar = toggleConversationSidebar;
 window.currentPage = function() { return currentPage; };
-
