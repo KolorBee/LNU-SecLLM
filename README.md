@@ -1,22 +1,22 @@
 <div align="center">
-  <img src="web/static/logo.png" alt="CyberStrikeAI Logo" width="200">
+  <img src="web/static/logo.png" alt="LNU-SecLLM Logo" width="200">
 </div>
 
 # LNU-SecLLM
 
 
-[中文](README_CN.md) | [English](README.md)
+<!-- [中文](README_CN.md) | [English](README.md)
 
 **Community**: [Join us on Discord](https://discord.gg/8PjVCMu8Zw)
 
 <details>
 <summary><strong>WeChat group</strong> (click to reveal QR code)</summary>
 
-<img src="./images/wechat-group-cyberstrikeai-qr.jpg" alt="CyberStrikeAI WeChat group QR code" width="280">
+<img src="./images/wechat-group-cyberstrikeai-qr.jpg" alt="LNU-SecLLM WeChat group QR code" width="280">
 
-</details>
+</details> -->
 
-CyberStrikeAI is an **AI-native security testing platform** built in Go. It integrates 100+ security tools, an intelligent orchestration engine, role-based testing with predefined security roles, a skills system with specialized testing skills, and comprehensive lifecycle management capabilities. Through native MCP protocol and AI agents, it enables end-to-end automation from conversational commands to vulnerability discovery, attack-chain analysis, knowledge retrieval, and result visualization—delivering an auditable, traceable, and collaborative testing environment for security teams.
+LNU-SecLLM is an **AI-native security testing platform** built in Go. It integrates 100+ security tools, an intelligent orchestration engine, role-based testing with predefined security roles, a skills system with specialized testing skills, and comprehensive lifecycle management capabilities. Through native MCP protocol and AI agents, it enables end-to-end automation from conversational commands to vulnerability discovery, attack-chain analysis, knowledge retrieval, and result visualization—delivering an auditable, traceable, and collaborative testing environment for security teams.
 
 
 ## Interface & Integration Preview
@@ -88,6 +88,20 @@ CyberStrikeAI is an **AI-native security testing platform** built in Go. It inte
 <img src="./images/plugins.png" alt="Burp Suite plugin" width="100%">
 </td>
 </tr>
+<tr>
+<td width="33.33%" align="center">
+<strong>Security Academy</strong><br/>
+<img src="./images/academy.png" alt="Security Academy" width="100%">
+</td>
+<td width="33.33%" align="center">
+<strong>Security Reports</strong><br/>
+<img src="./images/reports.png" alt="Security Reports" width="100%">
+</td>
+<td width="33.33%" align="center">
+<strong>Info Collection</strong><br/>
+<img src="./images/info-collect.png" alt="Info Collection" width="100%">
+</td>
+</tr>
 </table>
 
 </div>
@@ -103,16 +117,19 @@ CyberStrikeAI is an **AI-native security testing platform** built in Go. It inte
 - 📚 Knowledge base with vector search and hybrid retrieval for security expertise
 - 📁 Conversation grouping with pinning, rename, and batch management
 - 🛡️ Vulnerability management with CRUD operations, severity tracking, status workflow, and statistics
+- 📊 Security reports: aggregate vulnerabilities, conversations, and attack chains into structured, exportable security test reports
+- 🔍 Info collection: FOFA/ZoomEye cyberspace search plus natural-language-to-query parsing for reconnaissance
 - 📋 Batch task management: create task queues, add multiple tasks, and execute them sequentially
 - 🎭 Role-based testing: predefined security testing roles (Penetration Testing, CTF, Web App Scanning, etc.) with custom prompts and tool restrictions
 - 🧩 **Multi-agent mode (Eino DeepAgent)**: optional orchestration where a coordinator delegates work to Markdown-defined sub-agents via the `task` tool; main agent in `agents/orchestrator.md` (or `kind: orchestrator`), sub-agents under `agents/*.md`; chat mode switch when `multi_agent.enabled` is true (see [Multi-agent doc](docs/MULTI_AGENT_EINO.md))
 - 🎯 Skills system: 20+ predefined security testing skills (SQL injection, XSS, API security, etc.) that can be attached to roles or called on-demand by AI agents
-- 📱 **Chatbot**: DingTalk and Lark (Feishu) long-lived connections so you can talk to CyberStrikeAI from mobile (see [Robot / Chatbot guide](docs/robot_en.md) for setup and commands)
+- 📱 **Chatbot**: DingTalk and Lark (Feishu) long-lived connections so you can talk to LNU-SecLLM from mobile (see [Robot / Chatbot guide](docs/robot_en.md) for setup and commands)
  - 🐚 **WebShell management**: Add and manage WebShell connections (e.g. IceSword/AntSword compatible), use a virtual terminal for command execution, a built-in file manager for file operations, and an AI assistant tab that orchestrates tests and keeps per-connection conversation history; supports PHP, ASP, ASPX, JSP and custom shell types with configurable request method and command parameter.
+- 🎓 **Security Academy**: A built-in, beginner-to-advanced learning hub with four tabs — **Hands-on Labs** (step-by-step guided exercises that jump straight into the real Chat / Vulnerability / Attack-chain modules, with a floating guide that follows you across pages and demo fallbacks so it works even without an AI key), **Tutorials** (progressive illustrated articles), **Tool-chain Map** (the platform's 100+ tools organized along the cyber kill chain), and **Resource Library** (curated authoritative blogs, labs and official docs). Pure front-end, progress saved locally.
 
 ## Plugins
 
-CyberStrikeAI includes optional integrations under `plugins/`.
+LNU-SecLLM includes optional integrations under `plugins/`.
 
 - **Burp Suite extension**: `plugins/burp-suite/cyberstrikeai-burp-extension/`  
   Build output: `plugins/burp-suite/cyberstrikeai-burp-extension/dist/cyberstrikeai-burp-extension.jar`  
@@ -120,7 +137,7 @@ CyberStrikeAI includes optional integrations under `plugins/`.
 
 ## Tool Overview
 
-CyberStrikeAI ships with 100+ curated tools covering the whole kill chain:
+LNU-SecLLM ships with 100+ curated tools covering the whole kill chain:
 
 - **Network Scanners** – nmap, masscan, rustscan, arp-scan, nbtscan
 - **Web & App Scanners** – sqlmap, nikto, dirb, gobuster, feroxbuster, ffuf, httpx
@@ -148,8 +165,8 @@ CyberStrikeAI ships with 100+ curated tools covering the whole kill chain:
 
 **One-Command Deployment:**
 ```bash
-git clone https://github.com/Ed1s0nZ/CyberStrikeAI.git
-cd CyberStrikeAI
+git clone https://github.com/KolorBee/LNU-SecLLM.git
+cd LNU-SecLLM
 chmod +x run.sh && ./run.sh
 ```
 
@@ -196,7 +213,7 @@ go build -o cyberstrike-ai cmd/server/main.go
 
 ### Version Update (No Breaking Changes)
 
-**CyberStrikeAI one-click upgrade (recommended):**
+**LNU-SecLLM one-click upgrade (recommended):**
 1. (First time) enable the script: `chmod +x upgrade.sh`
 2. Upgrade with: `./upgrade.sh` (optional flags: `--tag vX.Y.Z`, `--no-venv`, `--preserve-custom`, `--yes`)
 3. The script will back up your `config.yaml` and `data/`, upgrade the code from GitHub Release, update `config.yaml`'s `version`, then restart the server.
@@ -234,6 +251,16 @@ Requirements / tips:
 - Timeout and sandbox guards per tool, plus structured logging for triage.
 
 ## Advanced Usage
+
+### Security Academy
+A one-stop learning module for students/teachers and security beginners, opened from the **Security Academy** entry in the left sidebar. It is **pure front-end with no backend or database dependency**, and learning progress is stored locally in the browser. It contains four tabs:
+
+- **🧪 Hands-on Labs** – Category-based practical exercises (Recon, Web vuln discovery, Result analysis & reporting, Comprehensive engagement) ranging from beginner to advanced. Each lab is **step-by-step**: clicking "Go" **jumps directly into the real Chat / Vulnerability / Attack-chain modules** with example commands pre-filled, and a **floating lab guide** then follows you on any page so you can mark steps done and advance without returning to the Academy. The most advanced lab chains "launch scan → review vulnerabilities → analyze attack chain". Every lab ships with a **demo fallback**, so it works even without an AI key or installed tools.
+- **📖 Tutorials** – Article-style tutorials split into Basics / Platform / Advanced, each with a difficulty tag and estimated reading time; usable as course material.
+- **🛰️ Tool-chain Map** – The platform's 100+ tools organized along the cyber kill chain (Recon → Scan → Exploit → PrivEsc/Post-ex → Lateral/Credentials → Analysis & Reporting); click any tool to see its role and typical use in the chain.
+- **🔗 Resource Library** – Curated external resources: authoritative knowledge bases, online labs, security blogs, official tool docs, CTF platforms and standards/regulations, with front-end search.
+
+> The module lives in the self-contained `web/static/academy/` directory and integrates with the host app via only a few additive edits to `web/templates/index.html` and `web/static/js/router.js` (low coupling, no Go/DB changes).
 
 ### Role-Based Testing
 - **Predefined roles** – System includes 12+ predefined security testing roles (Penetration Testing, CTF, Web App Scanning, API Security Testing, Binary Analysis, Cloud Security Audit, etc.) in the `roles/` directory.
@@ -312,7 +339,7 @@ Requirements / tips:
 - **Web mode** – ships with HTTP MCP server automatically consumed by the UI.
 - **MCP stdio mode** – `go run cmd/mcp-stdio/main.go` exposes the agent to Cursor/CLI.
 - **External MCP federation** – register third-party MCP servers (HTTP, stdio, or SSE) from the UI, toggle them per engagement, and monitor their health and call volume in real time.
-- **Optional MCP servers** – the [`mcp-servers/`](mcp-servers/README.md) directory provides standalone MCPs (e.g. reverse shell). They speak standard MCP over stdio and work with CyberStrikeAI (Settings → External MCP), Cursor, VS Code, and other MCP clients.
+- **Optional MCP servers** – the [`mcp-servers/`](mcp-servers/README.md) directory provides standalone MCPs (e.g. reverse shell). They speak standard MCP over stdio and work with LNU-SecLLM (Settings → External MCP), Cursor, VS Code, and other MCP clients.
 
 #### MCP stdio quick start
 1. **Build the binary** (run from the project root):
@@ -365,7 +392,7 @@ Example of what the terminal prints (with auth enabled):
 If you do not set `auth_header` / `auth_header_value`, the endpoint accepts requests without authentication (suitable only for localhost or trusted networks).
 
 #### External MCP federation (HTTP/stdio/SSE)
-CyberStrikeAI supports connecting to external MCP servers via three transport modes:
+LNU-SecLLM supports connecting to external MCP servers via three transport modes:
 - **HTTP mode** – traditional request/response over HTTP POST
 - **stdio mode** – process-based communication via standard input/output
 - **SSE mode** – Server-Sent Events for real-time streaming communication
@@ -428,9 +455,9 @@ A test SSE MCP server is available at `cmd/test-sse-mcp-server/` for validation 
 - **Retrieval logs** – tracks all knowledge retrieval operations for audit and debugging.
 
 **Quick Start (Using Pre-built Knowledge Base):**
-1. **Download the knowledge database** – Download the pre-built knowledge database file from [GitHub Releases](https://github.com/Ed1s0nZ/CyberStrikeAI/releases).
+1. **Download the knowledge database** – Download the pre-built knowledge database file from [GitHub Releases](https://github.com/KolorBee/LNU-SecLLM/releases).
 2. **Extract and place** – Extract the downloaded knowledge database file (`knowledge.db`) and place it in the project's `data/` directory.
-3. **Restart the service** – Restart the CyberStrikeAI service, and the knowledge base will be ready to use immediately without rebuilding the index.
+3. **Restart the service** – Restart the LNU-SecLLM service, and the knowledge base will be ready to use immediately without rebuilding the index.
 
 **Setting up the knowledge base:**
 1. **Enable in config** – set `knowledge.enabled: true` in `config.yaml`:
@@ -561,15 +588,16 @@ enabled: true
 ## Related documentation
 
 - [Multi-agent mode (Eino)](docs/MULTI_AGENT_EINO.md): DeepAgent orchestration, `agents/*.md`, APIs, and chat/stream behavior.
-- [Robot / Chatbot guide (DingTalk & Lark)](docs/robot_en.md): Full setup, commands, and troubleshooting for using CyberStrikeAI from DingTalk or Lark on your phone. **Follow this doc to avoid common pitfalls.**
+- [Robot / Chatbot guide (DingTalk & Lark)](docs/robot_en.md): Full setup, commands, and troubleshooting for using LNU-SecLLM from DingTalk or Lark on your phone. **Follow this doc to avoid common pitfalls.**
 
 ## Project Layout
 
 ```
-CyberStrikeAI/
+LNU-SecLLM/
 ├── cmd/                 # Server, MCP stdio entrypoints, tooling
 ├── internal/            # Agent, MCP core, handlers, security executor
 ├── web/                 # Static SPA + templates
+│   └── static/academy/  # Security Academy learning module (self-contained)
 ├── tools/               # YAML tool recipes (100+ examples provided)
 ├── roles/               # Role configurations (12+ predefined security testing roles)
 ├── skills/              # Skills directory (20+ predefined security testing skills)
@@ -604,7 +632,7 @@ Build an attack chain for the latest engagement and export the node list with se
 
 <img src="./images/404StarLinkLogo.png" width="30%">
 
-CyberStrikeAI has joined [404Starlink](https://github.com/knownsec/404StarLink)
+LNU-SecLLM has joined [404Starlink](https://github.com/knownsec/404StarLink)
 
 ## TCH Top-Ranked Intelligent Pentest Project  
 <div align="left">
@@ -614,14 +642,14 @@ CyberStrikeAI has joined [404Starlink](https://github.com/knownsec/404StarLink)
 </div>
 
 ## Stargazers over time
-![Stargazers over time](https://starchart.cc/Ed1s0nZ/CyberStrikeAI.svg)
+![Stargazers over time](https://starchart.cc/KolorBee/LNU-SecLLM.svg)
 
 
 ---
 
 ## License
 
-CyberStrikeAI is licensed under the Apache License 2.0.  
+LNU-SecLLM is licensed under the Apache License 2.0.  
 See the [LICENSE](LICENSE) file for details.
 
 ---
@@ -630,7 +658,7 @@ See the [LICENSE](LICENSE) file for details.
 
 **This tool is for educational and authorized testing purposes only!**
 
-CyberStrikeAI is a professional security testing platform designed to assist security researchers, penetration testers, and IT professionals in conducting security assessments and vulnerability research **with explicit authorization**.
+LNU-SecLLM is a professional security testing platform designed to assist security researchers, penetration testers, and IT professionals in conducting security assessments and vulnerability research **with explicit authorization**.
 
 **By using this tool, you agree to:**
 - Use this tool only on systems where you have clear written authorization
