@@ -8,7 +8,7 @@ function initRouter() {
     if (hash) {
         const hashParts = hash.split('?');
         const pageId = hashParts[0];
-        if (pageId && ['dashboard', 'chat', 'info-collect', 'vulnerabilities', 'reports', 'webshell', 'chat-files', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'agents-management', 'settings', 'tasks'].includes(pageId)) {
+        if (pageId && ['dashboard', 'academy', 'chat', 'info-collect', 'vulnerabilities', 'reports', 'webshell', 'chat-files', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'agents-management', 'settings', 'tasks'].includes(pageId)) {
             switchPage(pageId);
             
             // 如果是chat页面且带有conversation参数，加载对应对话
@@ -39,6 +39,7 @@ function initRouter() {
 // 页面标题映射
 const PAGE_TITLES = {
     'dashboard': '安全态势仪表盘',
+    'academy': '安全学苑',
     'chat': 'AI 对话',
     'info-collect': '信息收集',
     'tasks': '任务管理',
@@ -294,6 +295,11 @@ function initPage(pageId) {
                 refreshDashboard();
             }
             break;
+        case 'academy':
+            if (typeof initAcademy === 'function') {
+                initAcademy();
+            }
+            break;
         case 'chat':
             // 恢复对话列表折叠状态（从其他页返回时保持用户选择）
             initConversationSidebarState();
@@ -435,7 +441,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const hashParts = hash.split('?');
         const pageId = hashParts[0];
         
-        if (pageId && ['chat', 'info-collect', 'tasks', 'vulnerabilities', 'webshell', 'chat-files', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'agents-management', 'settings'].includes(pageId)) {
+        if (pageId && ['academy', 'chat', 'info-collect', 'tasks', 'vulnerabilities', 'webshell', 'chat-files', 'mcp-monitor', 'mcp-management', 'knowledge-management', 'knowledge-retrieval-logs', 'roles-management', 'skills-monitor', 'skills-management', 'agents-management', 'settings'].includes(pageId)) {
             switchPage(pageId);
             
             // 如果是chat页面且带有conversation参数，加载对应对话
