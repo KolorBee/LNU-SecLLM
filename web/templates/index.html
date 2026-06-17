@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="/static/logo.png?v=2">
     <link rel="shortcut icon" type="image/png" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/css/style.css?v={{.Version}}-dashboard-5">
+    <link rel="stylesheet" href="/static/academy/academy.css?v={{.Version}}-aca-1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css">
 </head>
 <body>
@@ -61,6 +62,14 @@
                                 </svg>
                             </span>
                             <span data-i18n="nav.dashboard">仪表盘</span>
+                        </div>
+                    </div>
+                    <div class="nav-item" data-page="academy">
+                        <div class="nav-item-content" data-title="安全学苑" onclick="switchPage('academy')">
+                            <span class="nav-icon-wrap nav-icon-blue">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                            </span>
+                            <span>安全学苑</span>
                         </div>
                     </div>
                     <div class="nav-group-label" data-section="workbench"><span>安全工作台</span></div>
@@ -1215,6 +1224,13 @@
                 </div>
 
                 <!-- WebShell 管理页面 -->
+                <!-- 安全学苑 / Security Academy -->
+                <div id="page-academy" class="page">
+                    <div class="page-content" style="padding-top:16px;">
+                        <div id="academy-root"><div class="loading-spinner">加载中...</div></div>
+                    </div>
+                </div>
+
                 <div id="page-webshell" class="page">
                     <div class="page-header">
                         <h2 data-i18n="webshell.title">WebShell 管理</h2>
@@ -2855,6 +2871,11 @@ version: 1.0.0<br>
     <script src="/static/js/skills.js"></script>
     <script src="/static/js/vulnerability.js?v=4"></script>
     <script src="/static/js/reports.js?v={{.Version}}-1"></script>
+    <script src="/static/academy/data-labs.js?v={{.Version}}-aca-1"></script>
+    <script src="/static/academy/data-tutorials.js?v={{.Version}}-aca-1"></script>
+    <script src="/static/academy/data-toolchain.js?v={{.Version}}-aca-1"></script>
+    <script src="/static/academy/data-resources.js?v={{.Version}}-aca-1"></script>
+    <script src="/static/academy/academy.js?v={{.Version}}-aca-1"></script>
     <script src="/static/js/webshell.js"></script>
     <script src="/static/js/chat-files.js"></script>
     <script src="/static/js/tasks.js"></script>
