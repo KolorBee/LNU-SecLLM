@@ -1,21 +1,21 @@
 <div align="center">
-  <img src="web/static/logo.png" alt="CyberStrikeAI Logo" width="200">
+  <img src="web/static/logo.png" alt="LNU-SecLLM Logo" width="200">
 </div>
 
-# CyberStrikeAI
+# LNU-SecLLM
 
 [中文](README_CN.md) | [English](README.md)
 
-**社区**：[加入 Discord](https://discord.gg/8PjVCMu8Zw)
+<!-- **社区**：[加入 Discord](https://discord.gg/8PjVCMu8Zw)
 
 <details>
 <summary><strong>微信群</strong>（点击展开二维码）</summary>
 
-<img src="./images/wechat-group-cyberstrikeai-qr.jpg" alt="CyberStrikeAI 微信群二维码" width="280">
+<img src="./images/wechat-group-cyberstrikeai-qr.jpg" alt="LNU-SecLLM 微信群二维码" width="280">
 
-</details>
+</details> -->
 
-CyberStrikeAI 是一款 **AI 原生安全测试平台**，基于 Go 构建，集成了 100+ 安全工具、智能编排引擎、角色化测试与预设安全测试角色、Skills 技能系统与专业测试技能，以及完整的测试生命周期管理能力。通过原生 MCP 协议与 AI 智能体，支持从对话指令到漏洞发现、攻击链分析、知识检索与结果可视化的全流程自动化，为安全团队提供可审计、可追溯、可协作的专业测试环境。
+LNU-SecLLM 是一款 **AI 原生安全测试平台**，基于 Go 构建，集成了 100+ 安全工具、智能编排引擎、角色化测试与预设安全测试角色、Skills 技能系统与专业测试技能，以及完整的测试生命周期管理能力。通过原生 MCP 协议与 AI 智能体，支持从对话指令到漏洞发现、攻击链分析、知识检索与结果可视化的全流程自动化，为安全团队提供可审计、可追溯、可协作的专业测试环境。
 
 
 ## 界面与集成预览
@@ -87,6 +87,20 @@ CyberStrikeAI 是一款 **AI 原生安全测试平台**，基于 Go 构建，集
 <img src="./images/plugins.png" alt="Burp Suite 插件" width="100%">
 </td>
 </tr>
+<tr>
+<td width="33.33%" align="center">
+<strong>安全学苑</strong><br/>
+<img src="./images/academy.png" alt="安全学苑" width="100%">
+</td>
+<td width="33.33%" align="center">
+<strong>安全报告</strong><br/>
+<img src="./images/reports.png" alt="安全报告" width="100%">
+</td>
+<td width="33.33%" align="center">
+<strong>信息收集</strong><br/>
+<img src="./images/info-collect.png" alt="信息收集" width="100%">
+</td>
+</tr>
 </table>
 
 </div>
@@ -102,12 +116,15 @@ CyberStrikeAI 是一款 **AI 原生安全测试平台**，基于 Go 构建，集
 - 📚 知识库功能：向量检索与混合搜索，为 AI 提供安全专业知识
 - 📁 对话分组管理：支持分组创建、置顶、重命名、删除等操作
 - 🛡️ 漏洞管理功能：完整的漏洞 CRUD 操作，支持严重程度分级、状态流转、按对话/严重程度/状态过滤，以及统计看板
+- 📊 安全报告：将漏洞、会话与攻击链等结果汇总为结构化、可导出的安全测试报告
+- 🔍 信息收集：FOFA / ZoomEye 网络空间测绘检索，并支持自然语言转查询语法，辅助资产侦察
 - 📋 批量任务管理：创建任务队列，批量添加任务，依次顺序执行，支持任务编辑与状态跟踪
 - 🎭 角色化测试：预设安全测试角色（渗透测试、CTF、Web 应用扫描等），支持自定义提示词和工具限制
 - 🧩 **多代理模式（Eino DeepAgent）**：可选编排——协调主代理通过 `task` 调度 Markdown 定义的子代理；主代理见 `agents/orchestrator.md` 或 front matter `kind: orchestrator`，子代理为 `agents/*.md`；开启 `multi_agent.enabled` 后聊天可切换单代理/多代理（详见 [多代理说明](docs/MULTI_AGENT_EINO.md)）
 - 🎯 Skills 技能系统：20+ 预设安全测试技能（SQL 注入、XSS、API 安全等），可附加到角色或由 AI 按需调用
-- 📱 **机器人**：支持钉钉、飞书长连接，在手机端与 CyberStrikeAI 对话（配置与命令详见 [机器人使用说明](docs/robot.md)）
+- 📱 **机器人**：支持钉钉、飞书长连接，在手机端与 LNU-SecLLM 对话（配置与命令详见 [机器人使用说明](docs/robot.md)）
 - 🐚 **WebShell 管理**：添加与管理 WebShell 连接（兼容冰蝎/蚁剑等），通过虚拟终端执行命令、内置文件管理进行文件操作，并提供按连接维度保存历史的 AI 助手标签页；支持 PHP/ASP/ASPX/JSP 及自定义类型，可配置请求方法与命令参数。
+- 🎓 **安全学苑（Security Academy）**：面向新手到进阶的一站式学习模块，含四个板块——**实战实验室**（分步引导并直接跳转到对话/漏洞/攻击链等真实模块动手实践，配常驻悬浮向导，无需配置 AI 也有示例兜底）、**进阶教程**（由浅入深的图文教程）、**工具链图谱**（按网络杀伤链梳理平台 100+ 工具）、**安全资源库**（精选权威博客/靶场/官方文档外链）；纯前端实现、进度本地保存。
 
 ## 插件（Plugins）
 
@@ -147,8 +164,8 @@ CyberStrikeAI 是一款 **AI 原生安全测试平台**，基于 Go 构建，集
 
 **一条命令部署：**
 ```bash
-git clone https://github.com/Ed1s0nZ/CyberStrikeAI.git
-cd CyberStrikeAI
+git clone https://github.com/KolorBee/LNU-SecLLM.git
+cd LNU-SecLLM
 chmod +x run.sh && ./run.sh
 ```
 
@@ -193,7 +210,7 @@ go build -o cyberstrike-ai cmd/server/main.go
 
 **说明：** Python 虚拟环境（`venv/`）由 `run.sh` 自动创建和管理。需要 Python 的工具（如 `api-fuzzer`、`http-framework-test` 等）会自动使用该环境。
 
-### CyberStrikeAI 版本更新（无兼容性问题）
+### LNU-SecLLM 版本更新（无兼容性问题）
 
 1. （首次使用）启用脚本：`chmod +x upgrade.sh`
 2. 一键升级：`./upgrade.sh`（可选参数：`--tag vX.Y.Z`、`--no-venv`、`--preserve-custom`、`--yes`）
@@ -232,6 +249,16 @@ go build -o cyberstrike-ai cmd/server/main.go
 - 每个工具执行都带有超时、日志和错误隔离。
 
 ## 进阶使用
+
+### 安全学苑（Security Academy）
+面向辽宁大学师生及安全初学者的一站式学习模块，从左侧菜单「安全学苑」进入，由浅入深掌握安全知识与平台用法。整块功能为**纯前端实现，不依赖后端与数据库**，学习进度保存在浏览器本地。包含四个板块：
+
+- **🧪 实战实验室**：按类别组织的动手实验（信息收集、Web 漏洞挖掘、结果分析与报告、综合实战），难度由入门到进阶。每个实验以**分步引导**的形式，点击「去操作」会**直接跳转到对话、漏洞管理、攻击链等真实模块**并自动填好示例指令；跳转后屏幕上会浮出**常驻实验向导**，可在任意页面继续标记步骤、推进到下一步，无需切回学苑。最进阶的实验串联「发起扫描 → 查看漏洞 → 攻击链分析」完整链路。每个实验均内置**示例结果兜底**，即使未配置 AI / 工具也能完整体验与演示。
+- **📖 进阶教程**：图文文章式教程，分基础篇 / 平台实战篇 / 进阶篇，带难度标签与预计阅读时长，可作课程讲义与实验指导。
+- **🛰️ 工具链图谱**：按「网络杀伤链」阶段（信息收集 → 漏洞扫描 → 漏洞利用 → 权限提升/后渗透 → 横向移动/凭据 → 分析与报告）梳理平台 100+ 工具，点击任一工具查看其在链条中的角色与典型用途。
+- **🔗 安全资源库**：精选权威知识库、在线靶场、安全社区博客、工具官方文档、CTF 竞赛与法规标准等外部学习资源，支持前端搜索过滤。
+
+> 提示：本模块代码集中在自包含目录 `web/static/academy/`，仅通过少量改动接入 `web/templates/index.html` 与 `web/static/js/router.js`，与主系统低耦合。
 
 ### 角色化测试
 - **预设角色**：系统内置 12+ 个预设的安全测试角色（渗透测试、CTF、Web 应用扫描、API 安全测试、二进制分析、云安全审计等），位于 `roles/` 目录。
@@ -309,7 +336,7 @@ go build -o cyberstrike-ai cmd/server/main.go
 - **Web 模式**：自带 HTTP MCP 服务供前端调用。
 - **MCP stdio 模式**：`go run cmd/mcp-stdio/main.go` 可接入 Cursor/命令行。
 - **外部 MCP 联邦**：在设置中注册第三方 MCP（HTTP/stdio/SSE），按需启停并实时查看调用统计与健康度。
-- **可选 MCP 服务**：项目中的 [`mcp-servers/`](mcp-servers/README_CN.md) 目录提供独立 MCP（如反向 Shell），采用标准 MCP stdio，可在 CyberStrikeAI（设置 → 外部 MCP）、Cursor、VS Code 等任意支持 MCP 的客户端中使用。
+- **可选 MCP 服务**：项目中的 [`mcp-servers/`](mcp-servers/README_CN.md) 目录提供独立 MCP（如反向 Shell），采用标准 MCP stdio，可在 LNU-SecLLM（设置 → 外部 MCP）、Cursor、VS Code 等任意支持 MCP 的客户端中使用。
 
 #### MCP stdio 快速集成
 1. **编译可执行文件**（在项目根目录执行）：
@@ -362,7 +389,7 @@ HTTP MCP 服务在独立端口（默认 `8081`）运行，支持 **Header 鉴权
 若不配置 `auth_header` / `auth_header_value`，则端点不鉴权（仅适合本机或可信网络）。
 
 #### 外部 MCP 联邦（HTTP/stdio/SSE）
-CyberStrikeAI 支持通过三种传输模式连接外部 MCP 服务器：
+LNU-SecLLM 支持通过三种传输模式连接外部 MCP 服务器：
 - **HTTP 模式** – 通过 HTTP POST 进行传统的请求/响应通信
 - **stdio 模式** – 通过标准输入/输出进行进程间通信
 - **SSE 模式** – 通过 Server-Sent Events 实现实时流式通信
@@ -426,9 +453,9 @@ CyberStrikeAI 支持通过三种传输模式连接外部 MCP 服务器：
 - **检索日志**：记录所有知识检索操作，便于审计与调试。
 
 **快速开始（使用预构建知识库）：**
-1. **下载知识数据库**：从 [GitHub Releases](https://github.com/Ed1s0nZ/CyberStrikeAI/releases) 下载预构建的知识数据库文件。
+1. **下载知识数据库**：从 [GitHub Releases](https://github.com/KolorBee/LNU-SecLLM/releases) 下载预构建的知识数据库文件。
 2. **解压并放置**：将下载的知识数据库文件（`knowledge.db`）解压后放到项目的 `data/` 目录下。
-3. **重启服务**：重启 CyberStrikeAI 服务，知识库即可直接使用，无需重新构建索引。
+3. **重启服务**：重启 LNU-SecLLM 服务，知识库即可直接使用，无需重新构建索引。
 
 **知识库配置步骤：**
 1. **启用功能**：在 `config.yaml` 中设置 `knowledge.enabled: true`：
@@ -560,15 +587,16 @@ enabled: true
 
 - [本地大模型替换指南](docs/local-llm.md)：将项目当前使用的 OpenAI 兼容 API 替换为本地模型服务，包含配置示例、知识库嵌入说明和常见问题排查。
 - [多代理模式（Eino）](docs/MULTI_AGENT_EINO.md)：DeepAgent 编排、`agents/*.md`、接口与流式说明。
-- [机器人使用说明（钉钉 / 飞书）](docs/robot.md)：在手机端通过钉钉、飞书与 CyberStrikeAI 对话的完整配置步骤、命令与排查说明，**建议按该文档操作以避免走弯路**。
+- [机器人使用说明（钉钉 / 飞书）](docs/robot.md)：在手机端通过钉钉、飞书与 LNU-SecLLM 对话的完整配置步骤、命令与排查说明，**建议按该文档操作以避免走弯路**。
 
 ## 项目结构
 
 ```
-CyberStrikeAI/
+LNU-SecLLM/
 ├── cmd/                 # Web 服务、MCP stdio 入口及辅助工具
 ├── internal/            # Agent、MCP 核心、路由与执行器
 ├── web/                 # 前端静态资源与模板
+│   └── static/academy/  # 安全学苑学习模块（自包含：实战/教程/工具链/资源）
 ├── tools/               # YAML 工具目录（含 100+ 示例）
 ├── roles/               # 角色配置文件目录（含 12+ 预设安全测试角色）
 ├── skills/              # Skills 目录（含 20+ 预设安全测试技能）
@@ -602,7 +630,7 @@ CyberStrikeAI/
 ## 404星链计划 
 <img src="./images/404StarLinkLogo.png" width="30%">
 
-CyberStrikeAI 现已加入 [404星链计划](https://github.com/knownsec/404StarLink)
+LNU-SecLLM 现已加入 [404星链计划](https://github.com/knownsec/404StarLink)
 
 ## TCH Top-Ranked Intelligent Pentest Project  
 <div align="left">
@@ -612,13 +640,13 @@ CyberStrikeAI 现已加入 [404星链计划](https://github.com/knownsec/404Star
 </div>
 
 ## Stargazers over time
-![Stargazers over time](https://starchart.cc/Ed1s0nZ/CyberStrikeAI.svg)
+![Stargazers over time](https://starchart.cc/KolorBee/LNU-SecLLM.svg)
 
 ---
 
 ## 许可证
 
-CyberStrikeAI 采用 **Apache License 2.0** 开源许可。  
+LNU-SecLLM 采用 **Apache License 2.0** 开源许可。  
 完整条款见仓库根目录 [LICENSE](LICENSE) 文件。
 
 ---
@@ -627,7 +655,7 @@ CyberStrikeAI 采用 **Apache License 2.0** 开源许可。
 
 **本工具仅供教育和授权测试使用！**
 
-CyberStrikeAI 是一个专业的安全测试平台，旨在帮助安全研究人员、渗透测试人员和IT专业人员在**获得明确授权**的情况下进行安全评估和漏洞研究。
+LNU-SecLLM 是一个专业的安全测试平台，旨在帮助安全研究人员、渗透测试人员和IT专业人员在**获得明确授权**的情况下进行安全评估和漏洞研究。
 
 **使用本工具即表示您同意：**
 - 仅在您拥有明确书面授权的系统上使用此工具
