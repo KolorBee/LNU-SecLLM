@@ -1,0 +1,1005 @@
+import json
+import logging
+from typing import Any
+
+import pandas as pd
+from qlib.backtest.decision import Order, OrderDir
+from qlib.backtest.signal import Signal
+from qlib.contrib.strategy.signal_strategy import (
+    TopkDropoutStrategy,
+    WeightStrategyBase,
+)
+
+import redis
+
+from backend.shared.fundamental_aligner import fundamental_aligner
+from backend.services.engine.qlib_app.utils.structured_logger import StructuredTaskLogger
+
+logger = logging.getLogger(__name__)
+
+
+class FundamentalFilteredSignal(Signal):
+    """对 signal.get_signal() 的返回值补充基本面过滤。"""
+
+    def __init__(self, signal: Any, constraints: dict[str, Any]) -> None:
+        self._signal = signal
+        self._constraints = dict(constraints or {})
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._signal, name)
+
+    @staticmethod
+    def _resolve_trade_date(args: tuple[Any, ...], kwargs: dict[str, Any]) -> pd.Timestamp | None:
+        candidates = (
+            kwargs.get("end_time"),
+            kwargs.get("start_time"),
+            args[1] if len(args) > 1 else None,
+            args[0] if len(args) > 0 else None,
+        )
+        for candidate in candidates:
+            if candidate is None:
+                continue
+            try:
+                return pd.Timestamp(candidate)
+            except Exception:
+                continue
+        return None
+
+    @staticmethod
+    def _filter_score_index(score: pd.Series | pd.DataFrame, instruments: list[str]) -> pd.Series | pd.DataFrame:
+        if not instruments:
+            return score.iloc[0:0]
+
+        instrument_set = {str(item) for item in instruments}
+        if isinstance(score.index, pd.MultiIndex) and "instrument" in score.index.names:
+            mask = score.index.get_level_values("instrument").astype(str).isin(instrument_set)
+            return score.loc[mask]
+
+        kept_index = [idx for idx in score.index if str(idx) in instrument_set]
+        if not kept_index:
+            return score.iloc[0:0]
+        return score.loc[kept_index]
+
+    def get_signal(self, *args: Any, **kwargs: Any) -> Any:
+        score = self._signal.get_signal(*args, **kwargs)
+        if score is None or not self._constraints:
+            return score
+        if not isinstance(score, (pd.Series, pd.DataFrame)) or score.empty:
+            return score
+
+        trade_date = self._resolve_trade_date(args, kwargs)
+        if trade_date is None:
+            return score
+
+        try:
+            if isinstance(score.index, pd.MultiIndex) and "instrument" in score.index.names:
+                instruments = score.index.get_level_values("instrument").astype(str).tolist()
+            else:
+                instruments = [str(idx) for idx in score.index.tolist()]
+
+            filtered = fundamental_aligner.filter_instruments(
+                trade_date,
+                instruments,
+                constraints=self._constraints,
+            )
+            if not filtered:
+                return score.iloc[0:0]
+            return self._filter_score_index(score, list(filtered))
+        except Exception as exc:
+            StructuredTaskLogger(
+                logger,
+                "fundamental-filter-signal",
+                {"trade_date": trade_date.strftime("%Y-%m-%d") if hasattr(trade_date, "strftime") else trade_date},
+            ).warning("fundamental_signal_filter_failed", "基本面信号过滤失败，回退原始信号", error=str(exc))
+            return score
+
+
+# 所有「本项目自定义 / 前端传入」的 kwargs，Qlib 的 BaseStrategy 不认识它们，
+# 必须在调用 super().__init__() 之前统一 pop。
+_OUR_KWARGS = {
+    # Redis 连接
+    "backtest_id",
+    "redis_host",
+    "redis_port",
+    "redis_db",
+    "redis_password",
+    # 动态风險 / 市场状态
+    "market_state_series",
+    "position_by_state",
+    "strategy_total_position",
+    "risk_degree",
+    "dynamic_position",
+    "market_state_symbol",
+    # 前端费率配置（CnExchange 处理，不属于策略层）
+    "buy_cost",
+    "sell_cost",
+    # 股票池文件路径（由平台在上层消费，不传给 qlib BaseStrategy）
+    "pool_file",
+    "pool_file_local",
+    "pool_file_key",
+    "pool_file_url",
+    # AI/前端策略生成参数（由平台上层消费，不传给 qlib BaseStrategy）
+    "condition",
+    "conditions",
+    "selection_condition",
+    "position_config",
+    "style_params",
+    # 融资融券相关字段
+    "financing_rate",
+    "borrow_rate",
+    "max_short_exposure",
+    "max_leverage",
+    "account_stop_loss",
+    # 调仓周期（各策略自行 pop 使用，不传给 BaseStrategy）
+    "rebalance_days",
+    # 做空选股（平台扩展参数，不传给 qlib BaseStrategy）
+    "short_topk",
+    # 基本面过滤对齐相关字段
+    "exclude_st",
+    "f_is_st_not",
+    "pe_max",
+    "mc_min",
+    "mc_max",
+    # 融券股票池
+    "margin_stock_pool",
+    # 调仓周期（各策略自行 pop 使用，不传给 BaseStrategy）
+    "rebalance_days",
+    # 做空开关
+    "enable_short_selling",
+    # 敞口配置
+    "long_exposure",
+    "short_exposure",
+    # CustomStrategyParams 扩展字段（由策略上层消费，不传给 qlib BaseStrategy）
+    "momentum_period",
+    "riskmodel_root",
+    "market",
+    "topk_sectors",
+    "lookback_days",
+    # WeightStrategyParams 扩展
+    "min_score",
+    "max_weight",
+    # StopLossParams 扩展
+    "stop_loss",
+    "take_profit",
+    # VolatilityWeightedParams 扩展
+    "vol_lookback",
+    # RiskGuardTopkParams 扩展
+    "industry_cap_ratio",
+    "listed_days_min",
+    "turnover_rate_min",
+    "turnover_rate_max",
+    "beta_20_max",
+    "float_mv_min",
+    "f_listed_days_min",
+    "f_turnover_rate_min",
+    "f_turnover_rate_max",
+    "f_beta_20_max",
+    "f_float_mv_min",
+    # 注意："signal" 是 Qlib 原生参数，不在此处过滤
+    # 各策略应在 super().__init__() 前通过 _resolve_signal_kwarg() 处理 signal
+}
+
+
+def _resolve_signal_kwarg(kwargs: dict) -> dict:
+    """
+    信号参数兼容性处理：将 dict 格式的 signal 转换为实例对象。
+
+    Qlib 的 create_signal_from() 不接受 dict 类型，必须提前实例化。
+    """
+    if "signal" not in kwargs:
+        return kwargs
+
+    sig = kwargs["signal"]
+    if not isinstance(sig, dict) or "class" not in sig:
+        return kwargs
+
+    from qlib.utils import init_instance_by_config
+
+    try:
+        kwargs["signal"] = init_instance_by_config(sig)
+    except Exception as e:
+        logger.warning("signal_instantiate_failed: %s, removing signal param", e)
+        kwargs.pop("signal", None)
+
+    return kwargs
+
+
+def _normalize_display_quantity(symbol: str, quantity: float) -> int:
+    """A 股展示数量纠偏，避免复权因子日间漂移造成非整手抖动。"""
+    qty_int = int(round(float(quantity)))
+    symbol_upper = str(symbol or "").upper()
+    if symbol_upper.startswith(("SH", "SZ", "BJ")) and qty_int >= 100:
+        lot_rounded = int(round(qty_int / 100.0) * 100)
+        if abs(qty_int - lot_rounded) <= 2:
+            return lot_rounded
+    return qty_int
+
+
+class RedisLoggerMixin:
+    """
+    Redis 交易记录与进度追踪混入类
+    """
+
+    def init_redis(self, kwargs):
+        self.backtest_id = kwargs.pop("backtest_id", None)
+        log = StructuredTaskLogger(
+            logger,
+            "redis-logger-mixin",
+            {"backtest_id": self.backtest_id, "strategy": self.__class__.__name__},
+        )
+
+        # 优先使用项目中统一的 Redis 哨兵客户端获取方式
+        try:
+            from backend.shared.redis_sentinel_client import get_redis_sentinel_client
+
+            self.redis_client = get_redis_sentinel_client()
+            self.redis_client._ensure_connection()
+            log.info("redis_init", "RedisLogger initialized via Sentinel client")
+        except Exception as e:
+            log.warning("redis_sentinel_unavailable", "无法使用哨兵客户端，尝试传统连接", error=e)
+            self.redis_host = kwargs.pop("redis_host", "localhost")
+            self.redis_port = kwargs.pop("redis_port", 6379)
+            self.redis_db = kwargs.pop("redis_db", 0)
+            self.redis_password = kwargs.pop("redis_password", None)
+
+            self.redis_client = None
+            if self.backtest_id:
+                try:
+                    self.redis_client = redis.Redis(
+                        host=self.redis_host,
+                        port=self.redis_port,
+                        db=self.redis_db,
+                        password=self.redis_password,
+                        decode_responses=True,
+                    )
+                except Exception as e:
+                    log.error("redis_connect_failed", "Redis连接失败", error=e)
+
+    def log_progress(self):
+        """记录回测进度"""
+        if not self.redis_client or not self.backtest_id:
+            return
+
+        try:
+            # 获取当前步长和日历
+            trade_step = getattr(self, "trade_step", 0)
+            trade_calendar = getattr(self, "trade_calendar", [])
+
+            if not trade_calendar:
+                # 尝试从 exchange 获取
+                exchange = getattr(self, "trade_exchange", None)
+                if exchange and hasattr(exchange, "trade_calendar"):
+                    trade_calendar = exchange.trade_calendar
+
+            if len(trade_calendar) > 0:
+                progress = min(1.0, float(trade_step) / len(trade_calendar))
+                if hasattr(trade_calendar, "get_step_time"):
+                    current_date = trade_calendar.get_step_time(
+                        min(int(trade_step), trade_calendar.get_trade_len() - 1)
+                    )[0]
+                else:
+                    current_date = trade_calendar[min(int(trade_step), len(trade_calendar) - 1)]
+                if hasattr(current_date, "strftime"):
+                    current_date = current_date.strftime("%Y-%m-%d")
+
+                progress_data = {
+                    "backtest_id": self.backtest_id,
+                    "status": "running",
+                    "progress": progress,
+                    "message": f"正在处理: {current_date}",
+                    "type": "progress",
+                }
+
+                # 发送到进度频道
+                self.redis_client.publish(
+                    f"qlib:backtest:progress:{self.backtest_id}",
+                    json.dumps(progress_data),
+                )
+                # 同时存入一个状态 Key 供查询
+                self.redis_client.set(
+                    f"qlib:backtest:status:{self.backtest_id}",
+                    json.dumps(progress_data),
+                    ex=3600,
+                )
+        except Exception as e:
+            StructuredTaskLogger(
+                logger,
+                "redis-logger-mixin",
+                {"backtest_id": self.backtest_id, "strategy": self.__class__.__name__},
+            ).debug("progress_log_failed", "记录进度失败", error=e)
+
+    def log_executed_trades(self, execute_result):
+        if not self.redis_client or not execute_result:
+            return
+
+        try:
+            redis_key = f"qlib:backtest:trades:{self.backtest_id}"
+
+            # ... (保持原有的交易记录逻辑)
+
+            for item in execute_result:
+                # item structure: (Order, trade_val, trade_cost, trade_price)
+                if not isinstance(item, tuple) or len(item) < 4:
+                    continue
+
+                order = item[0]
+                trade_val = item[1]
+                trade_cost = item[2]
+                trade_price = item[3]
+
+                # Check if order executed
+                if not hasattr(order, "deal_amount") or order.deal_amount <= 0:
+                    continue
+
+                direction = "buy" if order.direction == OrderDir.BUY else "sell"
+
+                date_str = "Unknown"
+                if hasattr(order, "start_time"):
+                    try:
+                        date_str = order.start_time.strftime("%Y-%m-%d")
+                    except:
+                        pass
+
+                cash_after = None
+                position_value_after = None
+                equity_after = None
+                try:
+                    pos_obj = None
+                    if hasattr(self, "trade_position"):
+                        tp = self.trade_position
+                        # Qlib 的 trade_position 可能是 Account 对象(有 get_current_position)
+                        # 或者直接是 Position 对象
+                        if hasattr(tp, "get_current_position"):
+                            pos_obj = tp.get_current_position()
+                        else:
+                            pos_obj = tp
+                    if pos_obj is not None:
+                        if hasattr(pos_obj, "get_cash"):
+                            try:
+                                cash_after = float(pos_obj.get_cash(include_settle=True))
+                            except TypeError:
+                                cash_after = float(pos_obj.get_cash())
+                        if hasattr(pos_obj, "calculate_stock_value"):
+                            position_value_after = float(pos_obj.calculate_stock_value())
+                        if hasattr(pos_obj, "calculate_value"):
+                            equity_after = float(pos_obj.calculate_value())
+                        elif cash_after is not None and position_value_after is not None:
+                            equity_after = cash_after + position_value_after
+                except Exception:
+                    pass
+
+                adj_price = float(trade_price)
+                adj_quantity = float(order.deal_amount)
+                factor = getattr(order, "factor", None)
+                factor_val = None
+                if factor is not None:
+                    try:
+                        factor_val = float(factor)
+                    except Exception:
+                        factor_val = None
+
+                # Qlib 内部成交通常使用复权口径（amount 受 factor 影响）。
+                # 当 trade_w_adj_price=False 时，price 是真实不复权市价，直接使用；
+                # quantity（deal_amount）是复权调整单位，需要 ×factor 还原为真实股数。
+                display_price = adj_price  # 真实不复权价格，直接使用
+                display_quantity = adj_quantity
+                if factor_val is not None and factor_val > 0 and not self.trade_exchange.trade_w_adj_price:
+                    display_quantity = adj_quantity * factor_val  # 还原真实股数
+
+                record = {
+                    "date": date_str,
+                    "symbol": str(order.stock_id),
+                    "action": direction,
+                    "quantity": _normalize_display_quantity(str(order.stock_id), display_quantity),
+                    "price": float(display_price),
+                    "commission": float(trade_cost),
+                    "totalAmount": float(trade_val),
+                    "cash_after": cash_after,
+                    "position_value_after": position_value_after,
+                    "equity_after": equity_after,
+                    # 追踪字段：保留复权口径，便于和 Qlib 内部计算对账
+                    "adj_price": adj_price,
+                    "adj_quantity": adj_quantity,
+                    "factor": factor_val,
+                    # 兼容旧前端字段命名
+                    "balance": equity_after,
+                    "type": "trade",
+                }
+
+                self.redis_client.rpush(redis_key, json.dumps(record))
+
+            self.redis_client.expire(redis_key, 3600)
+
+        except Exception as e:
+            StructuredTaskLogger(
+                logger,
+                "redis-logger-mixin",
+                {"backtest_id": self.backtest_id, "strategy": self.__class__.__name__},
+            ).error("trade_log_failed", "记录交易日志失败", error=e)
+
+
+class DynamicRiskMixin:
+    """动态风险仓位支持"""
+
+    def init_dynamic_risk(self, kwargs):
+        self.market_state_series = kwargs.pop("market_state_series", None)
+        self.position_by_state = kwargs.pop("position_by_state", None)
+        self.strategy_total_position = kwargs.pop("strategy_total_position", None)
+        self.default_risk_degree = kwargs.pop("risk_degree", None)
+        self.account_stop_loss = float(kwargs.pop("account_stop_loss", 0.0))
+        self.max_leverage = float(kwargs.pop("max_leverage", 1.0))
+        self._is_account_stopped = False
+        self._initial_account_value = None
+
+    def get_risk_degree(self, *args, **kwargs):
+        trade_date = self._get_trade_date()
+        if trade_date is not None:
+            date_key = trade_date.strftime("%Y-%m-%d")
+            if isinstance(self.market_state_series, dict):
+                value = self.market_state_series.get(date_key)
+                if isinstance(value, (int, float)):
+                    return self._clamp(float(value))
+                if isinstance(value, str) and isinstance(self.position_by_state, dict):
+                    mapped = self.position_by_state.get(value, self.position_by_state.get("neutral", 1.0))
+                    base = float(self.strategy_total_position) if self.strategy_total_position is not None else 1.0
+                    # Enforce max leverage limit
+                    return self._clamp(min(mapped * base, self.max_leverage))
+
+        if self.default_risk_degree is not None:
+            try:
+                # Enforce max leverage limit on default risk degree too
+                return self._clamp(min(float(self.default_risk_degree), self.max_leverage))
+            except Exception:
+                pass
+        return self._clamp(min(super().get_risk_degree(*args, **kwargs), self.max_leverage))
+
+    def reset_dynamic_risk(self):
+        """回测重置时清除止损状态和初始本金记录，避免跨轮次污染。"""
+        self._initial_account_value = None
+        self._is_account_stopped = False
+
+    def check_account_stop_loss(self):
+        """Check if the account value has dropped below the stop-loss threshold."""
+        if self._is_account_stopped:
+            return True
+
+        # 0.0 表示禁用
+        if self.account_stop_loss == 0.0:
+            return False
+
+        # 兼容两种格式：
+        #   正数比例 (如 0.8)  → 净值跌破初始值的 80% 时触发
+        #   负数回撤 (如 -0.2) → 净值从初始值下跌 20% 时触发（等同于 0.8 格式）
+        if self.account_stop_loss > 0:
+            threshold_ratio = self.account_stop_loss
+        else:
+            threshold_ratio = 1.0 + self.account_stop_loss  # -0.2 → 0.8
+
+        if threshold_ratio <= 0.0 or threshold_ratio >= 1.0:
+            return False
+
+        try:
+            pos_obj = None
+            if hasattr(self, "trade_position"):
+                tp = self.trade_position
+                if hasattr(tp, "get_current_position"):
+                    pos_obj = tp.get_current_position()
+                else:
+                    pos_obj = tp
+
+            if pos_obj is None:
+                return False
+
+            current_value = float(pos_obj.calculate_value())
+
+            if self._initial_account_value is None:
+                self._initial_account_value = current_value
+                return False
+
+            if current_value < self._initial_account_value * threshold_ratio:
+                StructuredTaskLogger(
+                    logger,
+                    "dynamic-risk",
+                    {
+                        "strategy": self.__class__.__name__,
+                        "backtest_id": getattr(self, "backtest_id", None),
+                    },
+                ).warning(
+                    "account_stop_loss_triggered",
+                    "Account stop-loss triggered",
+                    current_value=f"{current_value:,.0f}",
+                    threshold=f"{self._initial_account_value * threshold_ratio:,.0f}",
+                    initial=f"{self._initial_account_value:,.0f}",
+                    stop_loss=self.account_stop_loss,
+                )
+                self._is_account_stopped = True
+                return True
+        except Exception as e:
+            StructuredTaskLogger(
+                logger,
+                "dynamic-risk",
+                {
+                    "strategy": self.__class__.__name__,
+                    "backtest_id": getattr(self, "backtest_id", None),
+                },
+            ).debug("account_stop_loss_check_failed", "Failed to check account stop-loss", error=e)
+
+        return False
+
+    def _liquidate_all(self):
+        import logging
+
+        from qlib.backtest.decision import Order, OrderDir, TradeDecisionWO
+
+        StructuredTaskLogger(
+            logger,
+            "dynamic-risk",
+            {
+                "strategy": self.__class__.__name__,
+                "backtest_id": getattr(self, "backtest_id", None),
+            },
+        ).warning("liquidate_all", "Liquidating all positions due to account stop loss")
+        current_position = getattr(self, "trade_position", None)
+        orders = []
+        if current_position is not None:
+            current_stocks = current_position.get_stock_list()
+            trade_date = self._get_trade_date()
+            for stock in current_stocks:
+                amount = current_position.get_stock_amount(stock)
+                if abs(amount) > 1e-4:
+                    direction = OrderDir.SELL if amount > 0 else OrderDir.BUY
+                    orders.append(
+                        Order(
+                            stock_id=stock,
+                            amount=abs(amount),
+                            direction=direction,
+                            start_time=trade_date,
+                            end_time=trade_date,
+                        )
+                    )
+        return TradeDecisionWO(orders, self)
+
+    def _get_trade_date(self):
+        trade_step = getattr(self, "trade_step", None)
+        trade_calendar = getattr(self, "trade_calendar", None)
+        if trade_calendar is None:
+            exchange = getattr(self, "trade_exchange", None)
+            if exchange is not None and hasattr(exchange, "trade_calendar"):
+                trade_calendar = exchange.trade_calendar
+        if trade_calendar is None or trade_step is None:
+            return None
+        try:
+            if hasattr(trade_calendar, "get_step_time"):
+                return trade_calendar.get_step_time(min(int(trade_step), trade_calendar.get_trade_len() - 1))[0]
+            return trade_calendar[min(int(trade_step), len(trade_calendar) - 1)]
+        except Exception:
+            return None
+
+    def _clamp(self, value: float) -> float:
+        return max(0.0, min(1.0, value))
+
+    def _get_trade_step_safe(self):
+        """兼容不同 qlib 版本的交易步长读取。"""
+        trade_calendar = getattr(self, "trade_calendar", None)
+        if trade_calendar is not None and hasattr(trade_calendar, "get_trade_step"):
+            try:
+                return int(trade_calendar.get_trade_step())
+            except Exception:
+                pass
+        trade_step = getattr(self, "trade_step", None)
+        if trade_step is not None:
+            try:
+                return int(trade_step)
+            except Exception:
+                pass
+        return None
+
+    def _should_rebalance(self, rebalance_days: int) -> bool:
+        """统一调仓周期判定；无法读取交易步长时回退到本地计数器。"""
+        if int(rebalance_days) <= 1:
+            return True
+        step = self._get_trade_step_safe()
+        if step is None:
+            step = int(getattr(self, "_qm_trade_step_counter", 0))
+            self._qm_trade_step_counter = step + 1
+        return step % int(rebalance_days) == 0
+
+    def reset(self, *args, **kwargs):
+        """
+        兼容 qlib 0.9.7+ 在 backtest_loop 中传入 reset(level_infra=...) 的调用方式。
+        旧签名不接受该参数时自动降级重试。
+        """
+        self._qm_trade_step_counter = 0
+        self.reset_dynamic_risk()
+        try:
+            return super().reset(*args, **kwargs)
+        except TypeError as exc:
+            msg = str(exc)
+            if "unexpected keyword argument" not in msg:
+                raise
+            filtered = dict(kwargs)
+            filtered.pop("level_infra", None)
+            filtered.pop("common_infra", None)
+            filtered.pop("trade_exchange", None)
+            try:
+                return super().reset(*args, **filtered)
+            except TypeError:
+                return super().reset()
+
+
+class FundamentalFilterMixin:
+    """
+    基本面硬过滤混入类
+    支持 kwargs 中 `f_` 前缀参数，映射到 FundamentalAligner 约束。
+    """
+
+    def init_fundamental_filter(self, kwargs):
+        self.fundamental_constraints = {}
+        for key in list(kwargs.keys()):
+            if key.startswith("f_"):
+                self.fundamental_constraints[key[2:]] = kwargs.pop(key)
+
+        # 兼容旧参数
+        for old_key in ["pe_max", "mc_min", "mc_max", "exclude_st"]:
+            if old_key in kwargs:
+                if old_key == "exclude_st" and kwargs[old_key]:
+                    self.fundamental_constraints["is_st_not"] = 1
+                    kwargs.pop(old_key)
+                else:
+                    self.fundamental_constraints[old_key] = kwargs.pop(old_key)
+
+        self.use_fundamental_filter = len(self.fundamental_constraints) > 0
+
+    def _wrap_signal_with_fundamental_filter(self, kwargs):
+        """将原始信号包装为带基本面过滤的信号。"""
+        if not getattr(self, "use_fundamental_filter", False):
+            return
+        signal = kwargs.get("signal")
+        if signal is None:
+            StructuredTaskLogger(
+                logger,
+                "fundamental-filter-mixin",
+                {"backtest_id": getattr(self, "backtest_id", None)},
+            ).warning("signal_none", "signal 为 None，跳过包装")
+            return
+        if not hasattr(signal, "get_signal"):
+            StructuredTaskLogger(
+                logger,
+                "fundamental-filter-mixin",
+                {"backtest_id": getattr(self, "backtest_id", None)},
+            ).warning("signal_no_get_signal", "signal 没有 get_signal 方法，跳过包装", signal_type=type(signal).__name__)
+            return
+        kwargs["signal"] = FundamentalFilteredSignal(signal, self.fundamental_constraints)
+        StructuredTaskLogger(
+            logger,
+            "fundamental-filter-mixin",
+            {"backtest_id": getattr(self, "backtest_id", None)},
+        ).info("signal_wrapped", "信号已包装为 FundamentalFilteredSignal", constraints=list(self.fundamental_constraints.keys()))
+
+    def apply_fundamental_filter(self, score, trade_date):
+        if not self.use_fundamental_filter or score is None or score.empty:
+            return score
+
+        if isinstance(score.index, pd.MultiIndex) and "instrument" in score.index.names:
+            instruments = score.index.get_level_values("instrument").tolist()
+        else:
+            instruments = [str(idx) for idx in score.index.tolist()]
+
+        filtered_list = fundamental_aligner.filter_instruments(
+            trade_date, instruments, constraints=self.fundamental_constraints
+        )
+        if not filtered_list:
+            return pd.Series(dtype=float)
+
+        # 使用统一的索引过滤方法，兼容单层和多层索引
+        return FundamentalFilteredSignal._filter_score_index(score, list(filtered_list))
+
+
+class RedisRecordingStrategy(
+    DynamicRiskMixin, FundamentalFilterMixin, TopkDropoutStrategy, RedisLoggerMixin
+):
+    """
+    带有 Redis 记录功能的 TopkDropout 策略
+    """
+
+    def __init__(self, *args, **kwargs):
+        # 提取调仓周期参数
+        self.rebalance_days = int(kwargs.pop("rebalance_days", 1))
+        StructuredTaskLogger(
+            logger,
+            "redis-recording-strategy",
+            {"rebalance_days": self.rebalance_days},
+        ).info("init", "RedisRecordingStrategy initialized")
+
+        # 1. 初始化我们自定义的 mixin
+        self.init_redis(kwargs)
+        self.init_dynamic_risk(kwargs)
+        self.init_fundamental_filter(kwargs)
+
+        # 2. 统一清除所有「本项目自定义 / 前端传入」的 kwargs，
+        #    这些字段 Qlib BaseStrategy 不接受。
+        clean_kwargs = {k: v for k, v in kwargs.items() if k not in _OUR_KWARGS}
+
+        # 3. 调用 super().__init__
+        super().__init__(*args, **clean_kwargs)
+
+    def generate_target_weight_position(self, score, current=None, trade_exchange=None, *args, **kwargs):
+        t_start = kwargs.get("trade_start_time") or kwargs.get("t_start")
+        if t_start:
+            score = self.apply_fundamental_filter(score, t_start)
+        return super().generate_target_weight_position(score, current, trade_exchange, *args, **kwargs)
+
+    def generate_trade_decision(self, execute_result=None):
+        # 0. 账户止损检查
+        if self.check_account_stop_loss():
+            StructuredTaskLogger(
+                logger,
+                "redis-recording-strategy",
+                {"rebalance_days": self.rebalance_days, "backtest_id": getattr(self, "backtest_id", None)},
+            ).info("account_stop_loss", "Account stop-loss triggered. Liquidating.")
+            return self._liquidate_all()
+
+        # 调仓周期控制
+        # trade_step 是 BaseStrategy 维护的当前步数索引
+        trade_step = self._get_trade_step_safe() or 0
+
+        # 如果设置了调仓周期且当前不是调仓日，跳过调仓
+        if self.rebalance_days > 1 and trade_step % self.rebalance_days != 0:
+            from qlib.backtest.decision import TradeDecisionWO
+
+            return TradeDecisionWO([], self)
+
+        # Generate new orders (交易记录已移至 post_exe_step，此处不再重复记录)
+        try:
+            trade_decision = super().generate_trade_decision(execute_result)
+        except TypeError as e:
+            if "unsupported operand type(s) for /: 'float' and 'NoneType'" in str(e):
+                from qlib.backtest.decision import TradeDecisionWO
+                StructuredTaskLogger(
+                    logger,
+                    "redis-recording-strategy",
+                    {"backtest_id": getattr(self, "backtest_id", None)},
+                ).warning("skip_trade_no_price", "Skip trade due to missing price data (suspended stock)")
+                return TradeDecisionWO([], self)
+            raise
+        return trade_decision
+
+    def reset(self, *args, **kwargs):
+        """兼容 qlib reset 签名差异（level_infra/common_infra/trade_exchange）。"""
+        self._qm_trade_step_counter = 0
+        try:
+            return super().reset(*args, **kwargs)
+        except TypeError as exc:
+            if "unexpected keyword argument" not in str(exc):
+                raise
+            filtered = dict(kwargs)
+            filtered.pop("level_infra", None)
+            filtered.pop("common_infra", None)
+            filtered.pop("trade_exchange", None)
+            try:
+                return super().reset(*args, **filtered)
+            except TypeError:
+                return super().reset()
+
+    def post_exe_step(self, execute_result=None):
+        """每个执行步骤完成后由框架回调，记录本步所有成交并更新进度。
+        相比在 generate_trade_decision 中记录上一步结果，此处可捕获最后一天的交易。
+        """
+        self.log_progress()
+        self.log_executed_trades(execute_result)
+
+
+class SimpleWeightStrategy(WeightStrategyBase):
+    """
+    简单权重策略：根据预测分数为正的股票分配权重（归一化）
+    """
+
+    def __init__(self, *args, topk=None, min_score=0.0, max_weight=1.0, **kwargs):
+        self.topk = int(topk) if topk is not None else None
+        self.min_score = float(min_score) if min_score is not None else 0.0
+        self.max_weight = float(max_weight) if max_weight is not None else 1.0
+        super().__init__(*args, **kwargs)
+
+    def _build_capped_weights(self, scores: pd.Series, max_weight: float) -> pd.Series:
+        weights = pd.Series(0.0, index=scores.index)
+        remaining = scores.copy()
+        remaining_weight = 1.0
+
+        while not remaining.empty and remaining_weight > 0:
+            scaled = remaining / remaining.sum() * remaining_weight
+            over = scaled > max_weight
+            if not over.any():
+                weights.loc[remaining.index] = scaled
+                break
+
+            weights.loc[scaled[over].index] = max_weight
+            remaining_weight = 1.0 - weights.sum()
+            if remaining_weight <= 0:
+                total = weights.sum()
+                if total > 0:
+                    weights = weights / total
+                break
+            remaining = remaining.loc[~over]
+        return weights[weights > 0]
+
+    def generate_target_weight_position(self, score, current=None, trade_exchange=None, *args, **kwargs):
+        if current is None and args:
+            current = args[0]
+        if trade_exchange is None and len(args) > 1:
+            trade_exchange = args[1]
+        if score is None or score.empty:
+            return {}
+
+        # 过滤 NaN
+        sc = score.dropna()
+
+        # 确保 sc 是 Series 格式
+        if isinstance(sc, pd.DataFrame):
+            if sc.shape[1] > 0:
+                sc = sc.iloc[:, 0]
+            else:
+                return {}
+
+        # Qlib 的 signal 常见索引是 MultiIndex(date, instrument)。
+        # WeightStrategyBase 下游按 stock_id(str) 调用交易所接口，若传 tuple 会导致全部无法成交。
+        if isinstance(sc.index, pd.MultiIndex):
+            if "instrument" in sc.index.names:
+                sc = sc.groupby(level="instrument").last()
+            else:
+                sc = sc.groupby(level=sc.index.nlevels - 1).last()
+
+        # 只保留大于阈值的正分
+        threshold = self.min_score if self.min_score is not None else 0.0
+        sc = sc[sc > threshold]
+
+        if self.topk and self.topk > 0 and len(sc) > self.topk:
+            sc = sc.nlargest(self.topk)
+
+        if sc.empty:
+            return {}
+
+        # 归一化
+        total = sc.sum()
+        if total <= 0:
+            return {}
+
+        if self.max_weight is not None and 0 < self.max_weight < 1.0:
+            weights = self._build_capped_weights(sc, self.max_weight)
+        else:
+            weights = sc / total
+        return weights.to_dict()
+
+
+class RedisWeightStrategy(DynamicRiskMixin, SimpleWeightStrategy, RedisLoggerMixin):
+    """
+    带有 Redis 记录功能的 SimpleWeightStrategy，并在选股层过滤涨停/停牌股。
+
+    与 TopkDropoutStrategy 不同，WeightStrategyBase 不支持 only_tradable。
+    这里通过覆写 generate_target_weight_position，在归一化权重前剔除：
+    - 涨停股（limit_buy=True）：买入无法成交，不应占用权重
+    - 停牌股（suspended=True）：同上
+    跌停股的卖出由交易所执行层自动拦截，不在此处处理。
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.init_redis(kwargs)
+        self.init_dynamic_risk(kwargs)
+        self.rebalance_days = int(kwargs.pop("rebalance_days", 1))
+        StructuredTaskLogger(
+            logger,
+            "redis-weight-strategy",
+            {"rebalance_days": self.rebalance_days, "backtest_id": getattr(self, "backtest_id", None)},
+        ).info("init", "RedisWeightStrategy initialized")
+        clean_kwargs = {k: v for k, v in kwargs.items() if k not in _OUR_KWARGS}
+        super().__init__(*args, **clean_kwargs)
+
+    def reset(self, *args, **kwargs):
+        """兼容 qlib reset 签名差异（level_infra/common_infra/trade_exchange）。"""
+        self._qm_trade_step_counter = 0
+        try:
+            return super().reset(*args, **kwargs)
+        except TypeError as exc:
+            if "unexpected keyword argument" not in str(exc):
+                raise
+            filtered = dict(kwargs)
+            filtered.pop("level_infra", None)
+            filtered.pop("common_infra", None)
+            filtered.pop("trade_exchange", None)
+            try:
+                return super().reset(*args, **filtered)
+            except TypeError:
+                return super().reset()
+
+    def generate_target_weight_position(self, score, current=None, trade_exchange=None, *args, **kwargs):
+        if self.check_account_stop_loss():
+            StructuredTaskLogger(
+                logger,
+                "redis-weight-strategy",
+                {"rebalance_days": self.rebalance_days, "backtest_id": getattr(self, "backtest_id", None)},
+            ).info("account_stop_loss", "Account stop-loss triggered. Target position is empty.")
+            return {}
+
+        exchange = trade_exchange or getattr(self, "trade_exchange", None)
+        t_start = kwargs.get("trade_start_time") or kwargs.get("t_start")
+        t_end = kwargs.get("trade_end_time") or kwargs.get("t_end") or t_start
+
+        # 在归一化权重前过滤涨停/停牌股（不可买入，不应占权重名额）
+        if exchange is None:
+            StructuredTaskLogger(
+                logger,
+                "redis-weight-strategy",
+                {"rebalance_days": self.rebalance_days, "backtest_id": getattr(self, "backtest_id", None)},
+            ).warning("trade_exchange_missing", "trade_exchange 未注入，跳过涨停过滤")
+        elif score is not None and not score.empty and t_start is not None:
+            if isinstance(score, pd.DataFrame):
+                score = score.iloc[:, 0]
+            filtered_index = []
+            skipped = 0
+            for sid in score.index:
+                try:
+                    if exchange.check_stock_suspended(sid, t_start, t_end) or exchange.check_stock_limit(
+                        sid, t_start, t_end, direction=Order.BUY
+                    ):
+                        skipped += 1
+                        continue
+                except Exception:
+                    pass
+                filtered_index.append(sid)
+            if skipped:
+                StructuredTaskLogger(
+                    logger,
+                    "redis-weight-strategy",
+                    {"rebalance_days": self.rebalance_days, "backtest_id": getattr(self, "backtest_id", None)},
+                ).info(
+                    "trade_filter",
+                    "剔除涨停/停牌标的",
+                    trade_date=t_start.date(),
+                    skipped=skipped,
+                )
+                score = score.loc[filtered_index]
+            else:
+                StructuredTaskLogger(
+                    logger,
+                    "redis-weight-strategy",
+                    {"rebalance_days": self.rebalance_days, "backtest_id": getattr(self, "backtest_id", None)},
+                ).info(
+                    "trade_filter",
+                    "检查标的，无涨停/停牌",
+                    trade_date=t_start.date(),
+                    checked=len(score),
+                )
+
+        return super().generate_target_weight_position(score, current, trade_exchange, *args, **kwargs)
+
+    def _safe_generate_trade_decision(self, execute_result=None):
+        """安全地生成交易决策，处理 get_deal_price 返回 None 的情况。"""
+        try:
+            return super().generate_trade_decision(execute_result)
+        except TypeError as e:
+            if "unsupported operand type(s) for /: 'float' and 'NoneType'" in str(e):
+                from qlib.backtest.decision import TradeDecisionWO
+                StructuredTaskLogger(
+                    logger,
+                    "redis-weight-strategy",
+                    {"backtest_id": getattr(self, "backtest_id", None)},
+                ).warning("skip_trade_no_price", "Skip trade due to missing price data")
+                return TradeDecisionWO([], self)
+            raise
+
+    def generate_trade_decision(self, execute_result=None):
+        if not self._should_rebalance(self.rebalance_days):
+            from qlib.backtest.decision import TradeDecisionWO
+
+            return TradeDecisionWO([], self)
+
+        current_step = self._get_trade_step_safe() or 0
+        StructuredTaskLogger(
+            logger,
+            "redis-weight-strategy",
+            {"rebalance_days": self.rebalance_days, "backtest_id": getattr(self, "backtest_id", None)},
+        ).info("generate_orders", "Generating orders", step=current_step)
+        return self._safe_generate_trade_decision(execute_result)
+
+    def post_exe_step(self, execute_result=None):
+        self.log_progress()
+        self.log_executed_trades(execute_result)

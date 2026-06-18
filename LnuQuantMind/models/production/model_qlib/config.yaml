@@ -1,0 +1,122 @@
+cache:
+  dir: /tmp
+callback:
+  secret: 83fcf31f7620827251fb4516adf1f928f0ed689b6238407c7d80e617f31d4e5b
+  url: http://114.132.80.206:8000/api/v1/models/training-runs/train_20260601211846_3dc6f1cb/complete
+context:
+  commission_rate: 0.00025
+  deal_price: open
+  initial_capital: 1000000.0
+  limit_up_weight: 0.5
+  slippage: 0.0005
+data:
+  features:
+  - mom_ret_5d
+  - mom_ret_20d
+  - mom_ret_60d
+  - mom_ret_120d
+  - mom_ma_gap_5
+  - mom_ma_gap_20
+  - mom_ma_gap_60
+  - mom_macd_hist
+  - mom_rsi_14
+  - mom_breakout_20d
+  - vol_std_10
+  - vol_std_20
+  - vol_std_60
+  - vol_atr_14
+  - vol_parkinson_20
+  - vol_downside_20
+  - vol_realized_rv
+  - liq_turnover_tl
+  - liq_volume_ratio_5
+  - liq_volume_ratio_20
+  - liq_amount_ma_20
+  - liq_avg_trade_size
+  - liq_obv_20
+  - liq_amihud_20
+  - liq_amihud_60
+  - liq_mfi_14
+  - flow_net_amount_ratio
+  - flow_large_net_ratio
+  - flow_net_order_ratio
+  - flow_vpin_ma_20
+  - micro_imbalance_volume
+  - micro_effective_spread
+  - micro_pressure_score
+  - micro_jump_flag
+  - style_ln_mv_float
+  - style_bp
+  - style_ep_ttm
+  - style_beta_60
+  - style_idio_vol_60
+  - style_residual_ret_20
+  - style_valuation_composite
+  - style_size_percentile
+  - style_value_percentile
+  - ind_relative_volume_20
+  - ind_relative_volatility_20
+  - ind_strength_20
+  - ind_momentum_rank_20
+  - ind_value_rank
+  - mom_ret_1d
+  - liq_turnover_os
+  - liq_amount
+  - liq_volume
+  local_dir: /tmp/feature_snapshots
+  source_mode: LOCAL
+  train_end: '2023-04-15'
+  train_start: '2016-01-04'
+explain:
+  enable_shap: true
+  shap_sample_rows: 30000
+  shap_split: valid
+job_name: model_train_t5_20260601211846
+label:
+  effective_trade_date: '2024-11-10'
+  label_formula: label = CSZScore(future_return(T, T+5)) = CSZScore(open(T+5) / open(T)
+    - 1)
+  target_horizon_days: 5
+  target_mode: return
+  training_window: 2016-01-04 → 2023-04-15 | 2023-04-16 → 2024-11-04 | 2024-11-05
+    → 2026-05-29
+model:
+  early_stopping_rounds: 150
+  inference_best_iteration: null
+  num_boost_round: 1500
+  params:
+    bagging_fraction: 0.7
+    bagging_freq: 5
+    feature_fraction: 0.3
+    lambda_l1: 10
+    lambda_l2: 50
+    learning_rate: 0.01
+    max_depth: 4
+    metric: l2
+    min_child_samples: 3000
+    min_data_in_leaf: 1500
+    num_leaves: 7
+    objective: regression
+  type: lightgbm
+  val_ratio: null
+output:
+  cos_prefix: models/candidates/train_20260601211846_3dc6f1cb/
+  log_path: /workspace/training.log
+  required_artifacts:
+  - model.lgb
+  - pred.pkl
+  - metadata.json
+  - config.yaml
+  - result.json
+  result_path: /workspace/result.json
+run_id: train_20260601211846_3dc6f1cb
+split:
+  test:
+  - '2024-11-09'
+  - '2026-05-29'
+  train:
+  - '2016-01-04'
+  - '2023-04-15'
+  valid:
+  - '2023-04-20'
+  - '2024-11-04'
