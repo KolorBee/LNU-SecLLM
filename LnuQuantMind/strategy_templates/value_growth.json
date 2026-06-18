@@ -1,0 +1,65 @@
+{
+  "id": "value_growth",
+  "name": "价值成长策略",
+  "description": "基于模型信号选股，并叠加基本面过滤：剔除 ST，市值 10 亿-500 亿，PE 低于 25，ROE 高于 12%，上市满一年。",
+  "category": "basic",
+  "difficulty": "intermediate",
+  "params": [
+    {
+      "name": "topk",
+      "description": "目标持仓股票数",
+      "default": 30,
+      "min": 10,
+      "max": 200
+    },
+    {
+      "name": "n_drop",
+      "description": "每次调仓最大替换数",
+      "default": 5,
+      "min": 1,
+      "max": 50
+    },
+    {
+      "name": "f_pe_ttm_max",
+      "description": "PE 上限",
+      "default": 25,
+      "min": 1,
+      "max": 100
+    },
+    {
+      "name": "f_roe_min",
+      "description": "ROE 下限",
+      "default": 0.12,
+      "min": 0.0,
+      "max": 1.0
+    },
+    {
+      "name": "f_total_mv_min",
+      "description": "总市值下限",
+      "default": 1000000000,
+      "min": 0
+    },
+    {
+      "name": "f_total_mv_max",
+      "description": "总市值上限",
+      "default": 50000000000,
+      "min": 0
+    },
+    {
+      "name": "f_listed_days_min",
+      "description": "最小上市天数",
+      "default": 365,
+      "min": 0,
+      "max": 5000
+    }
+  ],
+  "execution_defaults": {},
+  "live_defaults": {
+    "topk": 30,
+    "n_drop": 5
+  },
+  "live_config_tips": [
+    "策略默认剔除 ST、限制市值区间，并过滤高估值/低盈利公司。",
+    "建议搭配较稳定的中频模型信号，定期检查基本面字段的更新完整性。"
+  ]
+}

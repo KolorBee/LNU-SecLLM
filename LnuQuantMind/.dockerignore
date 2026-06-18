@@ -1,0 +1,54 @@
+# Git & VS Code
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Virtual Environments
+.venv
+venv
+env
+bin
+lib
+share
+backend/services/ai_ide/.venv
+electron/node_modules
+
+# Data & Databases (Should be handled via volumes)
+db/
+data/
+userdata/
+mlruns/
+*.xlsx
+*.sqlite
+*.db
+
+# Logs & Temp
+logs/
+tmp/
+*.log
+__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Testing & Coverage
+htmlcov/
+.pytest_cache
+.coverage
+coverage.xml
+
+# Build Artifacts
+build/
+dist/
+dist-electron/
+node_modules/
+package-lock.json
+
+# Documentation (Optional to exclude for production)
+docs/
+research/
+README.md
+FRONTEND_CONFIG.md
+AGENTS.md
